@@ -14,7 +14,7 @@ AgentBoardroom is a decision intelligence platform that applies governance patte
 
 ## What Makes This Different
 
-Most multi-agent frameworks coordinate. AgentBoardroom **governs**.
+Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it's a **governance layer** that sits above them.
 
 - **Enforced, not suggested** — Challenge protocols, gate verdicts, and access controls are infrastructure constraints, not prompt instructions. `GovernanceProtection` prevents agents from modifying governance files. File-level access control prevents cross-team interference. Self-modification prevention ensures no agent can rewrite the rules that bind it. ([Constitution Article IX](CONSTITUTION.md))
 - **Federal multi-project model** — Run multiple concurrent projects with full isolation. Each project gets independent state, budget, teams, and lifecycle. A resource allocator distributes worker pools and model capacity across projects based on priority.
