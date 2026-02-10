@@ -1,0 +1,96 @@
+# AgentBoardroom — Research Template
+# Board configuration for deep research with verification and peer review.
+
+name: "Research Board"
+version: 1
+
+roles:
+  pi:
+    title: "Principal Investigator"
+    prompt: agents/ceo.md
+    responsibilities:
+      - research_planning
+      - hypothesis_formation
+      - coordination
+      - resource_allocation
+    challenges: [methodologist]
+    gates: [reviewer, auditor]
+    model_tier: high
+    session_type: persistent
+
+  methodologist:
+    title: "Methodologist"
+    prompt: agents/cto.md
+    responsibilities:
+      - methodology_review
+      - experimental_design
+      - statistical_rigor
+    challenges: [pi]
+    model_tier: high
+    session_type: persistent
+
+  reviewer:
+    title: "Peer Reviewer"
+    prompt: agents/qa.md
+    responsibilities:
+      - fact_checking
+      - source_verification
+      - quality_gates
+    gates: [teams]
+    model_tier: medium
+    session_type: spawned
+
+  auditor:
+    title: "Ethics & Budget Auditor"
+    prompt: agents/auditor.md
+    responsibilities:
+      - budget
+      - ethics_compliance
+      - source_attribution
+    model_tier: low
+    session_type: cron
+    interval: 15m
+
+teams:
+  defaults:
+    max_concurrent_members: 4
+    model_tier: medium
+    session_type: ephemeral
+    self_governing: true
+
+challenge:
+  max_rounds: 3
+  auto_escalation: true
+  default_action: challenge
+
+gates:
+  hypothesis_to_methodology:
+    required: [pi, methodologist]
+  methodology_to_research:
+    required: [methodologist]
+  research_to_synthesis:
+    required: [reviewer]
+    verdict_type: structural
+  synthesis_to_publication:
+    required: [pi, methodologist, reviewer, auditor]
+    verdict_type: structural
+
+governance:
+  self_modification: prohibited
+  protected_assets:
+    - board.yaml
+    - agents/*.md
+    - CONSTITUTION.md
+
+channels:
+  primary: "#research-board"
+  per_agent: true
+  decision_log: "#research-decisions"
+  messaging_platform: mattermost
+
+state:
+  backend: git
+  directory: ./state/
+
+runtime:
+  platform: openclaw

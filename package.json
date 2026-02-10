@@ -1,0 +1,35 @@
+{
+  "name": "agentboardroom",
+  "version": "0.1.0",
+  "description": "Corporate governance for AI agents — decision intelligence platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "agentboardroom": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node --test tests/",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "ai-agents",
+    "multi-agent",
+    "governance",
+    "decision-intelligence",
+    "openclaw"
+  ],
+  "author": "Cyberarctica Labs",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  },
+  "dependencies": {
+    "yaml": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
