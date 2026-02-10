@@ -1,7 +1,7 @@
 [
   {
     "id": "DEC-0001",
-    "timestamp": "2026-02-10T12:08:13.349Z",
+    "timestamp": "2026-02-10T12:19:04.548Z",
     "author": "ceo",
     "type": "planning",
     "summary": "A",
@@ -15,7 +15,7 @@
         "challenger": "cto",
         "action": "challenged",
         "rationale": "Disagree",
-        "timestamp": "2026-02-10T12:08:13.390Z"
+        "timestamp": "2026-02-10T12:19:04.584Z"
       }
     ],
     "status": "challenged",
@@ -26,7 +26,7 @@
   },
   {
     "id": "DEC-0002",
-    "timestamp": "2026-02-10T12:08:13.353Z",
+    "timestamp": "2026-02-10T12:19:04.552Z",
     "author": "cto",
     "type": "technical",
     "summary": "B",
@@ -43,7 +43,7 @@
   },
   {
     "id": "DEC-0003",
-    "timestamp": "2026-02-10T12:08:13.361Z",
+    "timestamp": "2026-02-10T12:19:04.560Z",
     "author": "ceo",
     "type": "scope",
     "summary": "C",

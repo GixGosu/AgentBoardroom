@@ -1,7 +1,7 @@
 [
   {
     "id": "DEC-0001",
-    "timestamp": "2026-02-10T12:08:13.396Z",
+    "timestamp": "2026-02-10T12:19:04.590Z",
     "author": "ceo",
     "type": "planning",
     "summary": "Base",
@@ -18,7 +18,7 @@
   },
   {
     "id": "DEC-0002",
-    "timestamp": "2026-02-10T12:08:13.400Z",
+    "timestamp": "2026-02-10T12:19:04.593Z",
     "author": "cto",
     "type": "technical",
     "summary": "Depends",
@@ -37,7 +37,7 @@
   },
   {
     "id": "DEC-0003",
-    "timestamp": "2026-02-10T12:08:13.408Z",
+    "timestamp": "2026-02-10T12:19:04.600Z",
     "author": "cto",
     "type": "technical",
     "summary": "Independent",

@@ -1,7 +1,7 @@
 [
   {
     "id": "DEC-0001",
-    "timestamp": "2026-02-10T12:08:13.423Z",
+    "timestamp": "2026-02-10T12:19:04.613Z",
     "author": "ceo",
     "type": "planning",
     "summary": "Plan A",
@@ -18,7 +18,7 @@
         "action": "challenged",
         "rationale": "I disagree",
         "counter_proposal": "Alt proposal",
-        "timestamp": "2026-02-10T12:08:13.454Z"
+        "timestamp": "2026-02-10T12:19:04.639Z"
       }
     ],
     "status": "challenged",
@@ -29,7 +29,7 @@
   },
   {
     "id": "DEC-0002",
-    "timestamp": "2026-02-10T12:08:13.427Z",
+    "timestamp": "2026-02-10T12:19:04.616Z",
     "author": "cto",
     "type": "technical",
     "summary": "Tech B",
