@@ -11,6 +11,8 @@
  */
 
 import { initCommand } from './commands/init.js';
+import { startCommand } from './commands/start.js';
+import { stopCommand } from './commands/stop.js';
 import { statusCommand } from './commands/status.js';
 import { decisionsCommand } from './commands/decisions.js';
 import { gatesCommand } from './commands/gates.js';
@@ -54,6 +56,8 @@ ${out.bold('Usage:')}
 
 ${out.bold('Commands:')}
   init         Initialize a new board from a template
+  start        Launch the Boardroom runtime
+  stop         Stop the Boardroom runtime
   status       Display board/project status
   decisions    Query decision log
   gates        Query gate verdict history
@@ -67,6 +71,9 @@ ${out.bold('Global Options:')}
 
 ${out.bold('Examples:')}
   agentboardroom init --template software-dev --project my-app
+  agentboardroom start
+  agentboardroom start --config board.yaml --verbose
+  agentboardroom stop
   agentboardroom status
   agentboardroom decisions --project my-app --status accepted
   agentboardroom gates --project my-app --status failed
@@ -99,6 +106,24 @@ async function main(): Promise<void> {
           project: typeof flags.project === 'string' ? flags.project : undefined,
           dir,
           json,
+        });
+        break;
+
+      case 'start':
+        await startCommand({
+          config: typeof flags.config === 'string' ? flags.config : undefined,
+          dir,
+          json,
+          dryRun: flags['dry-run'] === true,
+          verbose: flags.verbose === true,
+        });
+        break;
+
+      case 'stop':
+        await stopCommand({
+          dir,
+          json,
+          force: flags.force === true,
         });
         break;
 

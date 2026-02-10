@@ -1,0 +1,65 @@
+name: agentboardroom
+version: 0.1.0
+description: Corporate governance for AI agents — decision intelligence platform with adversarial review, gate enforcement, and audit trails
+author: Cyberarctica Labs
+license: MIT
+homepage: https://github.com/GixGosu/AgentBoardroom
+
+# Runtime requirements
+requires:
+  node: ">=20.0.0"
+  openclaw: ">=2026.2.0"
+
+# Agent definitions — the board roles
+agents:
+  board-ceo:
+    name: "CEO — The Strategist"
+    description: "Strategic leader: planning, decomposition, coordination, resource allocation"
+    model: anthropic/claude-sonnet-4-5
+    workspace: workspace-board-ceo
+    prompt: agents/ceo.md
+
+  board-cto:
+    name: "CTO — The Architect"
+    description: "Technical authority: architecture, design review, technical decisions"
+    model: anthropic/claude-sonnet-4-5
+    workspace: workspace-board-cto
+    prompt: agents/cto.md
+
+  board-qa:
+    name: "QA — The Gatekeeper"
+    description: "Quality gatekeeper: testing, validation, gate verdicts"
+    model: anthropic/claude-sonnet-4-5
+    workspace: workspace-board-qa
+    prompt: agents/qa.md
+
+  board-auditor:
+    name: "Auditor — The Watchdog"
+    description: "Compliance watchdog: budget, anomaly detection, governance"
+    model: ollama-gpu0/qwen3:32b
+    workspace: workspace-board-auditor
+    prompt: agents/auditor.md
+
+# CLI commands provided
+commands:
+  agentboardroom:
+    binary: dist/cli/index.js
+    description: "AgentBoardroom CLI — init, start, stop, status, decisions, gates, projects"
+
+# Installation hooks
+install:
+  steps:
+    - npm install
+    - npm run build
+  verify: agentboardroom --version
+
+# Files to include
+files:
+  - dist/**
+  - agents/**
+  - templates/**
+  - CONSTITUTION.md
+  - board.yaml
+  - skill.yaml
+  - SKILL.md
+  - package.json

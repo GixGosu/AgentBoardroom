@@ -106,4 +106,11 @@ export type {
   FileAccessPolicy,
   OpenClawChannelConfig,
   OpenClawMessaging,
+  OpenClawCLIToolsConfig,
+  BoardroomState,
+} from './adapters/openclaw/index.js';
+
+export {
+  OpenClawCLITools,
+  StateManager,
 } from './adapters/openclaw/index.js';

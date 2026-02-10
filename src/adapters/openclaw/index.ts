@@ -23,3 +23,7 @@ export {
   type OpenClawMessaging,
   type OpenClawMessageConfig,
 } from './channels.js';
+
+export { OpenClawCLITools, type OpenClawCLIToolsConfig } from './tools.js';
+
+export { StateManager, type BoardroomState } from './state.js';

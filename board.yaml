@@ -1,0 +1,135 @@
+# AgentBoardroom — Software Development Template
+# Default board configuration for autonomous software development projects.
+
+name: "Software Development Board"
+version: 1
+
+# Board roles — the governance layer
+roles:
+  ceo:
+    title: "CEO"
+    prompt: agents/ceo.md
+    responsibilities:
+      - planning
+      - decomposition
+      - coordination
+      - replanning
+      - resource_allocation
+    challenges: [cto]
+    gates: [qa, auditor]
+    model_tier: high
+    session_type: persistent
+
+  cto:
+    title: "CTO"
+    prompt: agents/cto.md
+    responsibilities:
+      - architecture
+      - design_review
+      - technical_authority
+    challenges: [ceo]
+    model_tier: high
+    session_type: persistent
+
+  qa:
+    title: "QA"
+    prompt: agents/qa.md
+    responsibilities:
+      - testing
+      - validation
+      - gate_verdicts
+    gates: [teams]
+    model_tier: medium
+    session_type: spawned
+
+  auditor:
+    title: "Auditor"
+    prompt: agents/auditor.md
+    responsibilities:
+      - budget
+      - anomaly_detection
+      - compliance
+      - scope_creep_detection
+    model_tier: low
+    session_type: cron
+    interval: 15m
+
+# Agent team defaults
+# Teams are sovereign — they self-govern internally.
+# These are constraints, not prescriptions.
+teams:
+  defaults:
+    max_concurrent_members: 6
+    model_tier: medium
+    session_type: ephemeral
+    self_governing: true
+
+# Multi-project settings
+projects:
+  max_concurrent: 10
+  resource_competition: ceo     # CEO allocates when projects compete
+  board_chair_override: true    # Board Chair can override CEO's allocation
+
+# Challenge protocol
+challenge:
+  max_rounds: 3
+  auto_escalation: true         # Escalate to Board Chair after max rounds
+  default_action: challenge     # Challenger must provide substantive objection or explicit approval
+
+# Gate definitions — what approvals are needed for each phase transition
+gates:
+  planning_to_architecture:
+    required: [ceo, cto]
+  architecture_to_implementation:
+    required: [cto]
+  implementation_to_integration:
+    required: [qa]
+    verdict_type: structural    # FAIL blocks advancement at code level
+  integration_to_delivery:
+    required: [ceo, cto, qa, auditor]
+    verdict_type: structural
+
+# Budget and model routing
+budget:
+  tiers:
+    high:
+      boardroom: high           # Most capable models for board roles
+      teams: medium             # Capable models for teams
+    medium:
+      boardroom: medium
+      teams: low
+    low:
+      boardroom: medium
+      teams: low
+    frozen:
+      all: local_only
+      action: pause_and_escalate
+  thresholds:
+    medium_at: 50               # Switch to medium tier at 50% budget
+    low_at: 80                  # Switch to low tier at 80% budget
+    freeze_at: 100              # Freeze at 100% budget
+
+# Governance protection — self-modification prohibition
+governance:
+  self_modification: prohibited
+  protected_assets:
+    - board.yaml
+    - agents/*.md
+    - CONSTITUTION.md
+    - templates/*.yaml
+
+# Communication
+channels:
+  primary: "#theboard"
+  per_agent: true
+  decision_log: "#decision-log"
+  messaging_platform: mattermost
+
+# State management
+state:
+  backend: git
+  directory: ./state/
+
+# Runtime
+runtime:
+  platform: openclaw
