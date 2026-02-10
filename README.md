@@ -35,7 +35,7 @@ Board Chair (Human)
 3. **Agent teams** are commissioned and self-organize to execute
 4. **QA** validates output against the original brief and acceptance criteria
 5. **QA gates** phase transitions — FAIL structurally blocks advancement
-6. **Auditor** monitors budget, scope creep, and compliance on a 15-minute cron
+6. **Auditor** monitors budget, scope creep, and compliance on a scheduled cron
 7. Every decision, challenge, and gate verdict is recorded in the decision graph
 
 ### Key Concepts
@@ -47,50 +47,67 @@ Board Chair (Human)
 
 ## Quick Start
 
-### Prerequisites
-
-- [OpenClaw](https://github.com/openclaw/openclaw) (agent runtime)
-- [Mattermost](https://mattermost.com/) (or Discord/Slack — agent communication layer)
-
-### Setup
-
 ```bash
-# Clone the repo
-git clone https://github.com/cyberarctica/agentboardroom.git
-cd agentboardroom
+# Install
+npm install agentboardroom
 
-# Configure your board
-cp templates/software-dev.yaml board.yaml
-# Edit board.yaml with your project details and channel IDs
+# Initialize a new board
+agentboardroom init --template software-dev --project my-app
 
-# Start the Boardroom
-# (detailed setup guide in docs/)
+# Check status
+agentboardroom status
+
+# Query decisions and gates
+agentboardroom decisions --project my-app
+agentboardroom gates --project my-app
 ```
 
-### Usage
-
-1. Post a project brief to your Boardroom channel
-2. The CEO decomposes it, the CTO challenges it, teams are commissioned
-3. Monitor progress in real-time via your chat platform
-4. Review the decision log and deliverables when complete
+For a complete walkthrough, see the **[Quick Start Guide](docs/QUICKSTART.md)**.
 
 ## Board Templates
 
-AgentBoardroom ships with pre-built governance configurations:
+AgentBoardroom ships with pre-built governance configurations for different domains:
 
-| Template | Roles | Use Case |
-|---|---|---|
-| `software-dev` | CEO, CTO, QA, Auditor + Dev teams | Ship code autonomously |
-| `research` | PI, Methodologist, Reviewer, Fact-Checker + Research teams | Deep research with verification |
-| `content` | Editor, Writer, Fact-Checker, Style Auditor + Writer teams | Content pipelines with quality gates |
-| `ops-incident` | Commander, SRE, Comms, Auditor + Response teams | Incident response with coordination |
-| `custom` | User-defined | Build your own governance structure |
+| Template | Roles | Use Case | Guide |
+|---|---|---|---|
+| `software-dev` | CEO, CTO, QA, Auditor | Ship code autonomously | [→](docs/templates/software-dev.md) |
+| `research` | PI, Methodologist, Reviewer, Fact-Checker | Deep research with verification | [→](docs/templates/research.md) |
+| `content` | Editor, Writer, Fact-Checker, Style Auditor | Content pipelines with quality gates | [→](docs/templates/content.md) |
+| `ops-incident` | Commander, SRE, Comms, Auditor | Incident response with coordination | [→](docs/templates/ops-incident.md) |
+| `custom` | User-defined | Build your own governance structure | [→](docs/templates/custom.md) |
+
+## CLI
+
+The `agentboardroom` CLI provides 5 commands for managing boards and projects:
+
+```bash
+agentboardroom init         # Initialize a new board from a template
+agentboardroom status       # Display board/project status
+agentboardroom decisions    # Query decision log
+agentboardroom gates        # Query gate verdict history
+agentboardroom projects     # Multi-project management (list, prioritize)
+```
+
+Full reference: **[CLI Usage Guide](docs/CLI-USAGE.md)**
 
 ## Documentation
 
-- **[CONSTITUTION.md](CONSTITUTION.md)** — The formal governance specification. The rules, roles, and protocols that define how AgentBoardroom operates.
-- **[PLAYBOOK.md](PLAYBOOK.md)** — The origin story. Why this exists, what we learned building it 25 times, and the failure modes that shaped the architecture.
-- **[PLAN.md](PLAN.md)** — Development roadmap and packaging plan.
+| Document | Description |
+|---|---|
+| **[Quick Start](docs/QUICKSTART.md)** | 10-minute setup guide |
+| **[Architecture](docs/ARCHITECTURE.md)** | System design, module breakdown, adapter pattern |
+| **[CLI Usage](docs/CLI-USAGE.md)** | Complete CLI reference with examples |
+| **[Template Customization](docs/TEMPLATE-CUSTOMIZATION.md)** | How to customize and create templates |
+| **[Constitution](CONSTITUTION.md)** | Formal governance specification |
+| **[Playbook](PLAYBOOK.md)** | Origin story and design rationale |
+
+### Template Guides
+
+- [Software Development](docs/templates/software-dev.md)
+- [Research](docs/templates/research.md)
+- [Content](docs/templates/content.md)
+- [Ops / Incident Response](docs/templates/ops-incident.md)
+- [Custom](docs/templates/custom.md)
 
 ## Why Governance?
 
