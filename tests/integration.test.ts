@@ -107,20 +107,20 @@ describe('Release Verification: Package Structure', () => {
 describe('Release Verification: Templates', () => {
   it('all 5 templates exist', () => {
     const templateDir = resolve(ROOT, 'templates');
-    const templates = ['software-dev', 'research', 'content', 'ops-incident', 'custom'];
+    const templates = ['software-dev.yaml', 'research.yaml', 'content.yaml', 'ops-incident.yaml', 'custom.yaml'];
     for (const name of templates) {
-      const configPath = resolve(templateDir, name, 'board.yaml');
-      assert.ok(existsSync(configPath), `Template ${name}/board.yaml should exist`);
+      const configPath = resolve(templateDir, name);
+      assert.ok(existsSync(configPath), `Template ${name} should exist`);
       const content = readFileSync(configPath, 'utf-8');
       assert.ok(content.length > 0, `Template ${name} should have content`);
     }
   });
 
-  it('software-dev template has all required prompts', () => {
-    const promptsDir = resolve(ROOT, 'templates/software-dev/prompts');
-    const prompts = ['ceo.md', 'cto.md', 'qa.md', 'auditor.md'];
+  it('agent prompts exist', () => {
+    const agentsDir = resolve(ROOT, 'agents');
+    const prompts = ['ceo.md', 'cto.md', 'qa.md', 'auditor.md', 'team-member.md'];
     for (const prompt of prompts) {
-      assert.ok(existsSync(resolve(promptsDir, prompt)), `Prompt ${prompt} should exist`);
+      assert.ok(existsSync(resolve(agentsDir, prompt)), `Agent prompt ${prompt} should exist`);
     }
   });
 
