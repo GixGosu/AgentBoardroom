@@ -20,6 +20,14 @@
     "decision-intelligence",
     "openclaw"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyberarctica/agentboardroom.git"
+  },
+  "homepage": "https://github.com/cyberarctica/agentboardroom#readme",
+  "bugs": {
+    "url": "https://github.com/cyberarctica/agentboardroom/issues"
+  },
   "author": "Cyberarctica Labs",
   "license": "MIT",
   "devDependencies": {

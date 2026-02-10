@@ -1,0 +1,30 @@
+# Source
+src/
+
+# Tests
+tests/
+
+# Dev/build config
+tsconfig.json
+.github/
+coverage/
+
+# Project docs (keep README, LICENSE, CHANGELOG)
+ARCHITECTURE.md
+CONSTITUTION.md
+PLAN.md
+PLAYBOOK.md
+docs/
+
+# Internal
+agents/
+memory/
+state/
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
