@@ -12,6 +12,8 @@ Autonomous agents, given unchecked authority, will drift from their objectives. 
 
 This Constitution defines the governance architecture of AgentBoardroom: the roles, powers, constraints, protocols, and enforcement mechanisms that ensure autonomous agent systems produce reliable outcomes without requiring continuous human oversight.
 
+AgentBoardroom is a decision engine. Agents autonomously plan work, challenge designs, validate output, allocate resources, and ship deliverables. This Constitution defines both what decisions agents can make and the structural checks that make those decisions trustworthy.
+
 ---
 
 ## Article I: Principles

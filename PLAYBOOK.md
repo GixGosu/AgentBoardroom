@@ -1,6 +1,6 @@
 # AgentBoardroom — Playbook
 
-**Corporate Governance for AI Agents**
+**Autonomous Decision-Making for AI Agent Systems**
 
 *The patterns behind autonomous multi-agent systems that ship complete on the first pass.*
 

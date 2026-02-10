@@ -6,7 +6,7 @@
 
 **The difference between an agent that starts a project and one that finishes it.**
 
-AgentBoardroom is a governance layer for autonomous multi-agent systems. It's how projects ship complete on the first pass: adversarial review catches design flaws before implementation, gate enforcement ensures each phase is actually done before moving on, decision lineage tells you exactly why every choice was made, and budget monitoring prevents the 80% stall.
+AgentBoardroom is a decision engine for autonomous multi-agent systems. Agents plan, challenge, build, validate, and ship — autonomously. The governance patterns are what make that trustworthy enough to run unsupervised for days: adversarial review catches design flaws before implementation, gate enforcement ensures each phase is actually done before moving on, decision lineage tells you exactly why every choice was made, and budget monitoring prevents the 80% stall.
 
 Governance isn't suggested. It's **structurally enforced** at the infrastructure layer: agents *cannot* bypass challenges, skip gates, or modify the rules that govern them.
 
@@ -14,7 +14,7 @@ Governance isn't suggested. It's **structurally enforced** at the infrastructure
 
 ---
 
-## What Governance Gets You
+## What Autonomous Decision-Making Gets You
 
 **Complete projects. Working code. One pass. Minimal human gates.**
 
@@ -59,13 +59,13 @@ Governance catches these **before** they become problems:
 - **Decision lineage** → Every significant choice is a queryable record with rationale, alternatives considered, and challenge history. When you need to fix something, you know exactly why it exists.
 - **Budget monitoring** → Auditor tracks token spend per team and phase. Flags overruns before projects stall at 80%.
 
-These aren't safety rails. They're **completion enablers**. Governance is how projects ship complete on the first pass.
+These aren't safety rails. They're what make autonomous decision-making trustworthy. Governance is how agents ship complete projects on the first pass — and keep shipping for days without human intervention.
 
 ---
 
 ## How It Works
 
-AgentBoardroom is a governance layer that sits above your agent teams. It doesn't do the work — it governs the agents that do.
+AgentBoardroom is a decision engine that sits above your agent teams. Agents autonomously plan, challenge, build, and validate. The governance architecture is what makes those decisions reliable.
 
 ```mermaid
 graph TB
@@ -114,7 +114,7 @@ graph TB
     style Auditor fill:#f3e5f5,color:#000000
 ```
 
-**The Boardroom governs. Projects run in isolation. Teams are sovereign. The human oversees.**
+**The Boardroom decides. Projects run in isolation. Teams are sovereign. The human oversees.**
 
 ### The Governance Cycle
 
@@ -139,7 +139,7 @@ graph TB
 
 ## What Makes This Different
 
-Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it's a **governance layer** that sits above them.
+Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it's a **decision engine** that sits above them. Agents make every planning, review, and validation decision autonomously. The governance patterns are what make that safe to run unsupervised.
 
 - **Enforced, not suggested** — Challenge protocols, gate verdicts, and access controls are infrastructure constraints, not prompt instructions. `GovernanceProtection` prevents agents from modifying governance files. File-level access control prevents cross-team interference. Self-modification prevention ensures no agent can rewrite the rules that bind it. ([Constitution Article IX](CONSTITUTION.md))
 - **Federal multi-project model** — Run multiple concurrent projects with full isolation. Each project gets independent state, budget, teams, and lifecycle. A resource allocator distributes worker pools and model capacity across projects based on priority.
