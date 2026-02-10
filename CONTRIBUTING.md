@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This guide will help you get started.
 
 ```bash
 # Clone the repo
-git clone https://github.com/cyberarctica/agentboardroom.git
+git clone https://github.com/GixGosu/AgentBoardroom.git
 cd agentboardroom
 
 # Install dependencies
@@ -89,7 +89,7 @@ Tests use `node:test` and `node:assert`. No test frameworks needed.
 
 ## Reporting Issues
 
-Use [GitHub Issues](https://github.com/cyberarctica/agentboardroom/issues) with the provided templates for bugs and feature requests.
+Use [GitHub Issues](https://github.com/GixGosu/AgentBoardroom/issues) with the provided templates for bugs and feature requests.
 
 ## License
 

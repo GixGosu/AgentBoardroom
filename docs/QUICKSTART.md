@@ -19,7 +19,7 @@ npm install agentboardroom
 Or clone the repo:
 
 ```bash
-git clone https://github.com/cyberarctica/agentboardroom.git
+git clone https://github.com/GixGosu/AgentBoardroom.git
 cd agentboardroom
 npm install
 npm run build

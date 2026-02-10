@@ -47,4 +47,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero runtime dependencies beyond `yaml`
 - TypeScript strict mode throughout
 
-[0.1.0]: https://github.com/cyberarctica/agentboardroom/releases/tag/v0.1.0
+[0.1.0]: https://github.com/GixGosu/AgentBoardroom/releases/tag/v0.1.0

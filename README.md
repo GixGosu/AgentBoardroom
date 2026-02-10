@@ -1,7 +1,7 @@
 # AgentBoardroom
 
 [![npm version](https://img.shields.io/npm/v/agentboardroom)](https://www.npmjs.com/package/agentboardroom)
-[![CI](https://github.com/cyberarctica/agentboardroom/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberarctica/agentboardroom/actions/workflows/ci.yml)
+[![CI](https://github.com/GixGosu/AgentBoardroom/actions/workflows/ci.yml/badge.svg)](https://github.com/GixGosu/AgentBoardroom/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Corporate governance for AI agents.**

@@ -22,11 +22,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/cyberarctica/agentboardroom.git"
+    "url": "https://github.com/GixGosu/AgentBoardroom.git"
   },
-  "homepage": "https://github.com/cyberarctica/agentboardroom#readme",
+  "homepage": "https://github.com/GixGosu/AgentBoardroom#readme",
   "bugs": {
-    "url": "https://github.com/cyberarctica/agentboardroom/issues"
+    "url": "https://github.com/GixGosu/AgentBoardroom/issues"
   },
   "author": "Cyberarctica Labs",
   "license": "MIT",

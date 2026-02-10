@@ -19,5 +19,5 @@ npm start
 
 ## Learn More
 
-- [Full Documentation](https://github.com/cyberarctica/agentboardroom#readme)
-- [Quick Start Guide](https://github.com/cyberarctica/agentboardroom/blob/main/docs/QUICKSTART.md)
+- [Full Documentation](https://github.com/GixGosu/AgentBoardroom#readme)
+- [Quick Start Guide](https://github.com/GixGosu/AgentBoardroom/blob/main/docs/QUICKSTART.md)
