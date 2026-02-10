@@ -1,0 +1,15 @@
+{
+  "name": "agentboardroom-quick-start",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx index.ts"
+  },
+  "dependencies": {
+    "agentboardroom": "^0.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

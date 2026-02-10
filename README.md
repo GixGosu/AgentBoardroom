@@ -1,5 +1,9 @@
 # AgentBoardroom
 
+[![npm version](https://img.shields.io/npm/v/agentboardroom)](https://www.npmjs.com/package/agentboardroom)
+[![CI](https://github.com/cyberarctica/agentboardroom/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberarctica/agentboardroom/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **Corporate governance for AI agents.**
 
 AgentBoardroom is a decision intelligence platform that applies governance patterns — adversarial review, gate enforcement, separation of powers, and audit trails — to autonomous multi-agent systems.
