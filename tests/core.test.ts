@@ -468,6 +468,249 @@ describe('GateEnforcement — History Queries', () => {
   });
 });
 
+// ─── Enhanced Challenge Protocol Tests (ab-2-2) ────────────────────
+
+describe('ChallengeProtocol — Round Limit Enforcement', () => {
+  const loader = new ConfigLoader(TEMPLATE_PATH);
+  const config = loader.load();
+
+  it('reports remaining rounds correctly', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_remaining');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'Test', rationale: 'Test', phase: 1, project: 'test' });
+    assert.equal(protocol.remainingRounds(dec), 3);
+    store.challenge(dec.id, 'cto', 'Disagree');
+    const updated = store.get(dec.id)!;
+    assert.equal(protocol.remainingRounds(updated), 2);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('isAtRoundLimit returns true at max rounds', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_limit');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'Test', rationale: 'Test', phase: 1, project: 'test' });
+    assert.equal(protocol.isAtRoundLimit(dec), false);
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R1');
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R2');
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R3');
+    // After 3 rounds it should be escalated (auto-escalation on)
+    const final = store.get(dec.id)!;
+    assert.equal(final.status, 'escalated');
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('blocks challenges on already-accepted decisions', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_block_accepted');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'Test', rationale: 'Test', phase: 1, project: 'test' });
+    protocol.processChallenge(store, dec.id, 'cto', 'accept', 'Looks good');
+    assert.throws(
+      () => protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Changed mind'),
+      /already accepted/
+    );
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('blocks challenges on already-escalated decisions', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_block_escalated');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'architecture', summary: 'Test', rationale: 'Test', phase: 1, project: 'test' });
+    // Exhaust rounds to trigger escalation
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R1');
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R2');
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R3');
+    assert.throws(
+      () => protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'R4'),
+      /already escalated/
+    );
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+});
+
+describe('ChallengeProtocol — Counter-Proposals', () => {
+  const loader = new ConfigLoader(TEMPLATE_PATH);
+  const config = loader.load();
+
+  it('creates structured counter-proposal during challenge', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_struct');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'architecture', summary: 'Use REST', rationale: 'Simple', phase: 1, project: 'test' });
+
+    const result = protocol.processChallenge(
+      store, dec.id, 'cto', 'challenge', 'GraphQL is better',
+      undefined,
+      { summary: 'Use GraphQL', rationale: 'More flexible', impact: ['Steeper learning curve', 'Better DX'] }
+    );
+
+    assert.ok(result.counter_proposal);
+    assert.equal(result.counter_proposal!.summary, 'Use GraphQL');
+    assert.equal(result.counter_proposal!.status, 'pending');
+    assert.equal(result.counter_proposal!.proposed_by, 'cto');
+    assert.equal(result.counter_proposal!.impact.length, 2);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('retrieves counter-proposals by decision ID', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_retrieve');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'Plan A', rationale: 'R', phase: 1, project: 'test' });
+
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Nope', undefined,
+      { summary: 'Plan B', rationale: 'Better', impact: ['None'] });
+
+    const cps = protocol.getCounterProposals(dec.id);
+    assert.equal(cps.length, 1);
+    assert.equal(cps[0].id, `CP-${dec.id}-1`);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('resolves a counter-proposal (accept)', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_resolve');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'X', rationale: 'R', phase: 1, project: 'test' });
+
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Nope', undefined,
+      { summary: 'Y', rationale: 'Better', impact: [] });
+
+    const cpId = `CP-${dec.id}-1`;
+    const resolved = protocol.resolveCounterProposal(cpId, 'accepted', 'Team agrees');
+    assert.equal(resolved.status, 'accepted');
+    assert.equal(resolved.resolution_notes, 'Team agrees');
+    assert.ok(resolved.resolved_at);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('prevents double-resolution of counter-proposals', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_double');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'X', rationale: 'R', phase: 1, project: 'test' });
+
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Nope', undefined,
+      { summary: 'Y', rationale: 'Better', impact: [] });
+
+    const cpId = `CP-${dec.id}-1`;
+    protocol.resolveCounterProposal(cpId, 'rejected', 'Not viable');
+    assert.throws(
+      () => protocol.resolveCounterProposal(cpId, 'accepted', 'Actually yes'),
+      /already rejected/
+    );
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('supersedes pending counter-proposals on acceptance', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_supersede');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+    const dec = store.propose({ author: 'ceo', type: 'architecture', summary: 'X', rationale: 'R', phase: 1, project: 'test' });
+
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Nope', undefined,
+      { summary: 'Alt', rationale: 'Better', impact: [] });
+
+    // Now accept the original decision
+    protocol.processChallenge(store, dec.id, 'cto', 'accept', 'On second thought, OK');
+
+    const cps = protocol.getCounterProposals(dec.id);
+    assert.equal(cps[0].status, 'superseded');
+    assert.ok(cps[0].resolution_notes?.includes('accepted'));
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+});
+
+describe('ChallengeProtocol — Audit & Export', () => {
+  const loader = new ConfigLoader(TEMPLATE_PATH);
+  const config = loader.load();
+
+  it('generates audit trail from store', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_audit');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'Audit test', rationale: 'R', phase: 1, project: 'audit-proj' });
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Disagree', undefined,
+      { summary: 'Alternative', rationale: 'Better approach', impact: ['Risk reduction'] });
+    protocol.processChallenge(store, dec.id, 'cto', 'accept', 'Revised is good');
+
+    const trail = protocol.getAuditTrail(store);
+    assert.equal(trail.length, 1);
+    assert.equal(trail[0].decision_id, dec.id);
+    assert.equal(trail[0].total_rounds, 1);
+    assert.equal(trail[0].current_status, 'accepted');
+    assert.equal(trail[0].counter_proposals.length, 1);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('filters audit trail by project', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_audit_filter');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+
+    const d1 = store.propose({ author: 'ceo', type: 'planning', summary: 'D1', rationale: 'R', phase: 1, project: 'proj-a' });
+    const d2 = store.propose({ author: 'ceo', type: 'planning', summary: 'D2', rationale: 'R', phase: 1, project: 'proj-b' });
+    protocol.processChallenge(store, d1.id, 'cto', 'challenge', 'No');
+    protocol.processChallenge(store, d2.id, 'cto', 'challenge', 'No');
+
+    const trail = protocol.getAuditTrail(store, { project: 'proj-a' });
+    assert.equal(trail.length, 1);
+    assert.equal(trail[0].project, 'proj-a');
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('exports JSON audit trail', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_json');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+
+    const dec = store.propose({ author: 'ceo', type: 'planning', summary: 'JSON test', rationale: 'R', phase: 1, project: 'test' });
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'No');
+
+    const json = protocol.exportJSON(store);
+    const parsed = JSON.parse(json);
+    assert.ok(Array.isArray(parsed));
+    assert.equal(parsed.length, 1);
+    assert.equal(parsed[0].decision_id, dec.id);
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+
+  it('exports markdown audit report', () => {
+    const protocol = new ChallengeProtocol(config);
+    const stateDir = resolve(TEST_DIR, 'cp_md');
+    mkdirSync(stateDir, { recursive: true });
+    const store = new DecisionStore(stateDir);
+
+    const dec = store.propose({ author: 'ceo', type: 'architecture', summary: 'MD test', rationale: 'R', phase: 1, project: 'test' });
+    protocol.processChallenge(store, dec.id, 'cto', 'challenge', 'Disagree', undefined,
+      { summary: 'Alt approach', rationale: 'Better', impact: ['Less risk'] });
+
+    const md = protocol.exportMarkdown(store);
+    assert.ok(md.includes('# Challenge Protocol Audit Trail'));
+    assert.ok(md.includes('MD test'));
+    assert.ok(md.includes('Counter-Proposals'));
+    assert.ok(md.includes('Alt approach'));
+    assert.ok(md.includes('Summary'));
+    rmSync(stateDir, { recursive: true, force: true });
+  });
+});
+
 // ─── GovernanceProtection — Audit Logging (ab-2-4) ──────────────────
 
 describe('GovernanceProtection — Audit Logging', () => {
