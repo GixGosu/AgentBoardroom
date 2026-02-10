@@ -4,21 +4,62 @@
 [![CI](https://github.com/GixGosu/AgentBoardroom/actions/workflows/ci.yml/badge.svg)](https://github.com/GixGosu/AgentBoardroom/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Corporate governance for AI agents.**
+**The difference between an agent that starts a project and one that finishes it.**
 
-AgentBoardroom is a decision intelligence platform that applies governance patterns — adversarial review, gate enforcement, separation of powers, and audit trails — to autonomous multi-agent systems. Governance isn't suggested. It's **structurally enforced** at the infrastructure layer: agents *cannot* bypass challenges, skip gates, or modify the rules that govern them.
+AgentBoardroom is a governance layer for autonomous multi-agent systems. It's how projects ship complete on the first pass: adversarial review catches design flaws before implementation, gate enforcement ensures each phase is actually done before moving on, decision lineage tells you exactly why every choice was made, and budget monitoring prevents the 80% stall.
+
+Governance isn't suggested. It's **structurally enforced** at the infrastructure layer: agents *cannot* bypass challenges, skip gates, or modify the rules that govern them.
 
 > Built by its own predecessor. [TheBoard](PLAYBOOK.md) — a 4-agent governance prototype — was tasked with building its own replacement. It planned the architecture, spawned worker teams, ran QA gates, and delivered AgentBoardroom across 5 phases: 25 source files, 209 tests, 5 board templates. The prototype governed the construction of the product that replaces it.
 
 ---
 
-## What Makes This Different
+## What Governance Gets You
 
-Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it's a **governance layer** that sits above them.
+**Complete projects. Working code. One pass. Minimal human gates.**
 
-- **Enforced, not suggested** — Challenge protocols, gate verdicts, and access controls are infrastructure constraints, not prompt instructions. `GovernanceProtection` prevents agents from modifying governance files. File-level access control prevents cross-team interference. Self-modification prevention ensures no agent can rewrite the rules that bind it. ([Constitution Article IX](CONSTITUTION.md))
-- **Federal multi-project model** — Run multiple concurrent projects with full isolation. Each project gets independent state, budget, teams, and lifecycle. A resource allocator distributes worker pools and model capacity across projects based on priority.
-- **Adversarial by design** — Every significant decision is challenged before execution. Every phase transition is independently validated. Every resource spend is audited on a cron. The architecture doesn't trust any single agent — including the one at the top.
+Here are the receipts:
+
+- **AgentBoardroom built itself** — 5 phases, 224 tests, 0 failures, ~8.5 hours of autonomous work. Human touched it twice: project brief at the start, merge approval at the end.
+- **TheBoard built its successor** — The predecessor system autonomously designed, implemented, and delivered the replacement that obsoletes it. That's the proof.
+- **25 failed attempts informed the design** — We know exactly which governance mechanisms matter because we watched agents fail without them. Every pattern in this system exists because its absence caused a project to drift, stall, or ship incomplete. ([Read the full story](PLAYBOOK.md))
+- **2-3 minute smoke tests** — Full governance cycle (Brief → CEO plans → CTO challenges → Team builds → QA gates → Done) completes in minutes, not hours. Fast enough to verify, tight enough to trust.
+
+### What This Looks Like
+
+```
+Human: [posts brief in #project-board]
+  ↓
+CEO: Decomposes into phases, assigns teams, posts plan
+  ↓
+CTO: Reviews architecture, challenges weak spots, accepts or counter-proposes
+  ↓
+Teams: Self-organize, execute work, post milestones
+  ↓
+QA: Validates output against original brief, issues gate verdict
+  ↓
+Done: Working deliverable, full audit trail, zero rework
+```
+
+One pass. Human touched it twice.
+
+### Why Governance Matters
+
+Without structural governance, agents drift. They start strong, then:
+
+- **Design flaws emerge during implementation** → 3 days of rework because no one caught it early
+- **Phases advance prematurely** → "80% done" projects that never finish the last mile
+- **Decision context gets lost** → fixing a bug requires archaeology to understand why it was built that way
+- **Token budgets run dry** → project stalls at the hardest part because the easy tasks burned the budget
+
+Governance catches these **before** they become problems:
+
+- **Adversarial review** → CTO challenges CEO's plan before teams start building. Design flaws caught in minutes, not discovered in week 2.
+- **Gate enforcement** → QA verdict structurally blocks phase transitions. Can't advance until acceptance criteria are met. No false finishes.
+- **Decision lineage** → Every significant choice is a queryable record with rationale, alternatives considered, and challenge history. When you need to fix something, you know exactly why it exists.
+- **Budget monitoring** → Auditor tracks token spend per team and phase. Flags overruns before projects stall at 80%.
+
+These aren't safety rails. They're **completion enablers**. Governance is how projects ship complete on the first pass.
 
 ---
 
@@ -87,12 +128,26 @@ graph TB
 
 ### Key Concepts
 
-- **Challenge Protocol** — Agents structurally challenge each other's decisions before execution. Not optional. Not a prompt suggestion. Built into the architecture.
-- **Decision Records** — Every significant decision is a queryable object with author, rationale, challenge history, and lineage.
-- **Gate Enforcement** — QA verdicts are structural. A FAIL blocks phase advancement and returns work to the previous owner.
+- **Challenge Protocol** — Agents structurally challenge each other's decisions before execution. Not optional. Not a prompt suggestion. Built into the architecture. Catches design flaws before implementation starts.
+- **Decision Records** — Every significant decision is a queryable object with author, rationale, challenge history, and lineage. When you need to fix something, you know exactly why it was built that way.
+- **Gate Enforcement** — QA verdicts are structural. A FAIL blocks phase advancement and returns work to the previous owner. No false finishes — phases advance only when acceptance criteria are met.
 - **Separation of Powers** — No single agent has unchecked authority. Every decision passes through at least two perspectives.
 - **Governance Protection** — Infrastructure-level prevention of self-modification. Agents cannot alter governance files, access out-of-scope resources, or cross team boundaries. Violations are logged and blocked.
 - **Cross-Project Isolation** — Teams in Project A cannot see or affect Project B. Physical state isolation enforced at the access control layer.
+
+---
+
+## What Makes This Different
+
+Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it's a **governance layer** that sits above them.
+
+- **Enforced, not suggested** — Challenge protocols, gate verdicts, and access controls are infrastructure constraints, not prompt instructions. `GovernanceProtection` prevents agents from modifying governance files. File-level access control prevents cross-team interference. Self-modification prevention ensures no agent can rewrite the rules that bind it. ([Constitution Article IX](CONSTITUTION.md))
+- **Federal multi-project model** — Run multiple concurrent projects with full isolation. Each project gets independent state, budget, teams, and lifecycle. A resource allocator distributes worker pools and model capacity across projects based on priority.
+- **Adversarial by design** — Every significant decision is challenged before execution. Every phase transition is independently validated. Every resource spend is audited on a cron. The architecture doesn't trust any single agent — including the one at the top.
+
+These patterns also provide **safety and compliance**: decision lineage creates audit trails, separation of powers prevents runaway autonomy, gate enforcement ensures human review points. But safety is the byproduct. The goal is **completion**. Governance is how autonomous agents ship projects that work on the first pass.
+
+---
 
 ## Multi-Project Governance
 
