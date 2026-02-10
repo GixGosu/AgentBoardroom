@@ -167,6 +167,7 @@ Full reference: **[CLI Usage Guide](docs/CLI-USAGE.md)**
 | **[Architecture](docs/ARCHITECTURE.md)** | System design, module breakdown, adapter pattern |
 | **[CLI Usage](docs/CLI-USAGE.md)** | Complete CLI reference with examples |
 | **[Template Customization](docs/TEMPLATE-CUSTOMIZATION.md)** | How to customize and create templates |
+| **[Startup Verification](docs/STARTUP-VERIFICATION.md)** | 5-step smoke test to verify your board is live |
 | **[Constitution](CONSTITUTION.md)** | Formal governance specification — separation of powers, role definitions, enforcement mechanisms |
 | **[Playbook](PLAYBOOK.md)** | Origin story, failure modes, and design rationale — the "why" behind every pattern |
 
