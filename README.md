@@ -26,25 +26,54 @@ Multi-agent frameworks coordinate work. AgentBoardroom is not a framework — it
 
 AgentBoardroom is a governance layer that sits above your agent teams. It doesn't do the work — it governs the agents that do.
 
-```
-                    Board Chair (Human)
-                         │
-                         ▼
-            ┌─ THE BOARDROOM ──────────────────────────┐
-            │  CEO ←→ CTO ←→ QA ←→ Auditor             │
-            └──┬────────────────────┬──────────────────┘
-               │                    │
-     ┌─────────┴─────────┐  ┌──────┴──────────┐
-     │   Project Alpha    │  │   Project Beta   │
-     │  ┌─────┐ ┌─────┐  │  │  ┌─────┐        │
-     │  │ T-1 │ │ T-2 │  │  │  │ T-1 │        │
-     │  └─────┘ └─────┘  │  │  └─────┘        │
-     │  Budget: $50       │  │  Budget: $30     │
-     │  State: isolated   │  │  State: isolated │
-     └────────────────────┘  └─────────────────┘
+```mermaid
+graph TB
+    Chair["🪑 Board Chair (Human)<br/>Brief → Escalation → Review"]
+
+    subgraph Boardroom["THE BOARDROOM"]
+        CEO["CEO<br/>Strategy & Planning"]
+        CTO["CTO<br/>Architecture"]
+        QA["QA<br/>Gate Enforcement"]
+        Auditor["Auditor<br/>Budget & Compliance"]
+
+        CEO <-->|"challenge"| CTO
+        CEO -->|"submit"| QA
+        QA -->|"PASS/FAIL"| CEO
+        Auditor -.->|"monitor"| CEO
+        Auditor -.->|"monitor"| CTO
+    end
+
+    Chair -->|"project brief"| CEO
+    QA -->|"escalate"| Chair
+    Auditor -->|"alert"| Chair
+
+    subgraph ProjA["Project Alpha (isolated)"]
+        TeamA1["Team α<br/>src/core/"]
+        TeamA2["Team β<br/>src/adapters/"]
+    end
+
+    subgraph ProjB["Project Beta (isolated)"]
+        TeamB1["Team γ<br/>research/"]
+    end
+
+    CEO -->|"commission"| ProjA
+    CEO -->|"commission"| ProjB
+    QA -->|"gate verdict"| ProjA
+    QA -->|"gate verdict"| ProjB
+
+    ProjA x--x|"🔒 isolated"| ProjB
+
+    style Chair fill:#e1f5ff,color:#000000
+    style Boardroom fill:#fff9e6,color:#000000
+    style ProjA fill:#e8f5e9,color:#000000
+    style ProjB fill:#e8f5e9,color:#000000
+    style CEO fill:#fff4e1,color:#000000
+    style CTO fill:#fff4e1,color:#000000
+    style QA fill:#fce4ec,color:#000000
+    style Auditor fill:#f3e5f5,color:#000000
 ```
 
-**The Boardroom governs. Projects run in isolation. The human oversees.**
+**The Boardroom governs. Projects run in isolation. Teams are sovereign. The human oversees.**
 
 ### The Governance Cycle
 
