@@ -467,3 +467,205 @@ describe('GateEnforcement — History Queries', () => {
     }
   });
 });
+
+// ─── GovernanceProtection — Audit Logging (ab-2-4) ──────────────────
+
+describe('GovernanceProtection — Audit Logging', () => {
+  const protection = new GovernanceProtection(
+    {
+      self_modification: 'prohibited',
+      protected_assets: ['board.yaml', 'agents/*.md', 'CONSTITUTION.md', 'templates/*.yaml'],
+    },
+    '/fake/base'
+  );
+
+  it('logs allowed access attempts', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('worker', '/fake/base/src/index.ts');
+    const log = protection.exportAuditLog();
+    assert.equal(log.length, 1);
+    assert.equal(log[0].allowed, true);
+    assert.equal(log[0].agent_role, 'worker');
+    assert.equal(log[0].target_path, 'src/index.ts');
+  });
+
+  it('logs denied governance asset access with matched pattern', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('ceo', '/fake/base/board.yaml');
+    const log = protection.exportAuditLog();
+    assert.equal(log.length, 1);
+    assert.equal(log[0].allowed, false);
+    assert.equal(log[0].violation_type, 'governance_asset');
+    assert.equal(log[0].matched_pattern, 'board.yaml');
+  });
+
+  it('logs denied scope violation with agent scope', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('worker', '/fake/base/src/other/file.ts', ['src/mymodule/*']);
+    const log = protection.exportAuditLog();
+    assert.equal(log.length, 1);
+    assert.equal(log[0].allowed, false);
+    assert.equal(log[0].violation_type, 'out_of_scope');
+    assert.deepEqual(log[0].agent_scope, ['src/mymodule/*']);
+  });
+
+  it('accumulates multiple log entries', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('ceo', '/fake/base/src/index.ts');
+    protection.checkWriteAccess('cto', '/fake/base/board.yaml');
+    protection.checkWriteAccess('worker', '/fake/base/src/foo.ts', ['src/*']);
+    const log = protection.exportAuditLog();
+    assert.equal(log.length, 3);
+  });
+
+  it('clears audit log', () => {
+    protection.clearAuditLog();
+    assert.equal(protection.exportAuditLog().length, 0);
+  });
+});
+
+describe('GovernanceProtection — Audit Log Queries', () => {
+  const protection = new GovernanceProtection(
+    {
+      self_modification: 'prohibited',
+      protected_assets: ['board.yaml', 'agents/*.md', 'CONSTITUTION.md'],
+    },
+    '/fake/base'
+  );
+
+  it('queries by agent_role', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('ceo', '/fake/base/src/a.ts');
+    protection.checkWriteAccess('cto', '/fake/base/src/b.ts');
+    protection.checkWriteAccess('ceo', '/fake/base/board.yaml');
+    const results = protection.queryAuditLog({ agent_role: 'ceo' });
+    assert.equal(results.length, 2);
+  });
+
+  it('queries denied-only entries', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('ceo', '/fake/base/src/ok.ts');
+    protection.checkWriteAccess('cto', '/fake/base/CONSTITUTION.md');
+    const results = protection.queryAuditLog({ allowed: false });
+    assert.equal(results.length, 1);
+    assert.equal(results[0].target_path, 'CONSTITUTION.md');
+  });
+
+  it('queries by path substring', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('worker', '/fake/base/src/core/types.ts');
+    protection.checkWriteAccess('worker', '/fake/base/src/gates/enforcement.ts');
+    const results = protection.queryAuditLog({ path_contains: 'gates' });
+    assert.equal(results.length, 1);
+  });
+
+  it('respects limit parameter', () => {
+    protection.clearAuditLog();
+    for (let i = 0; i < 5; i++) {
+      protection.checkWriteAccess('worker', `/fake/base/src/file${i}.ts`);
+    }
+    const results = protection.queryAuditLog({ limit: 3 });
+    assert.equal(results.length, 3);
+  });
+
+  it('returns results sorted descending by timestamp', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('a', '/fake/base/src/1.ts');
+    protection.checkWriteAccess('b', '/fake/base/src/2.ts');
+    const results = protection.queryAuditLog({});
+    assert.equal(results.length, 2);
+    // Most recent first
+    assert.ok(new Date(results[0].timestamp) >= new Date(results[1].timestamp));
+  });
+});
+
+describe('GovernanceProtection — Audit Summary', () => {
+  const protection = new GovernanceProtection(
+    {
+      self_modification: 'prohibited',
+      protected_assets: ['board.yaml', 'agents/*.md'],
+    },
+    '/fake/base'
+  );
+
+  it('produces correct summary statistics', () => {
+    protection.clearAuditLog();
+    protection.checkWriteAccess('ceo', '/fake/base/src/ok.ts');
+    protection.checkWriteAccess('ceo', '/fake/base/board.yaml');
+    protection.checkWriteAccess('cto', '/fake/base/board.yaml');
+    protection.checkWriteAccess('worker', '/fake/base/src/other.ts', ['src/mine/*']);
+
+    const summary = protection.getAuditSummary();
+    assert.equal(summary.total_attempts, 4);
+    assert.equal(summary.total_allowed, 1);
+    assert.equal(summary.total_denied, 3);
+    assert.equal(summary.denials_by_type['governance_asset'], 2);
+    assert.equal(summary.denials_by_type['out_of_scope'], 1);
+    assert.equal(summary.denials_by_agent['ceo'], 1);
+    assert.equal(summary.denials_by_agent['cto'], 1);
+    assert.ok(summary.top_targeted_assets.length > 0);
+    assert.equal(summary.top_targeted_assets[0].path, 'board.yaml');
+    assert.equal(summary.top_targeted_assets[0].count, 2);
+  });
+});
+
+describe('GovernanceProtection — enforceFileAccess', () => {
+  const protection = new GovernanceProtection(
+    {
+      self_modification: 'prohibited',
+      protected_assets: ['board.yaml', 'agents/*.md'],
+    },
+    '/fake/base'
+  );
+
+  it('returns null for allowed access', () => {
+    const report = protection.enforceFileAccess('worker', '/fake/base/src/code.ts');
+    assert.equal(report, null);
+  });
+
+  it('returns ViolationReport for governance asset denial', () => {
+    const report = protection.enforceFileAccess('ceo', '/fake/base/board.yaml');
+    assert.ok(report !== null);
+    assert.equal(report!.result.allowed, false);
+    assert.equal(report!.result.violation_type, 'governance_asset');
+    assert.equal(report!.matched_pattern, 'board.yaml');
+    assert.equal(report!.agent_role, 'ceo');
+  });
+
+  it('returns ViolationReport with scope info for out_of_scope denial', () => {
+    const report = protection.enforceFileAccess('worker', '/fake/base/src/other.ts', ['src/mine/*']);
+    assert.ok(report !== null);
+    assert.equal(report!.result.violation_type, 'out_of_scope');
+    assert.deepEqual(report!.allowed_scope, ['src/mine/*']);
+    assert.ok(report!.nearest_allowed);
+  });
+});
+
+describe('GovernanceProtection — validatePaths', () => {
+  const protection = new GovernanceProtection(
+    {
+      self_modification: 'prohibited',
+      protected_assets: ['board.yaml', 'agents/*.md', 'CONSTITUTION.md'],
+    },
+    '/fake/base'
+  );
+
+  it('identifies protected paths in a batch', () => {
+    const violations = protection.validatePaths([
+      'src/index.ts',
+      'board.yaml',
+      'agents/ceo.md',
+      'src/core/types.ts',
+      'CONSTITUTION.md',
+    ]);
+    assert.equal(violations.length, 3);
+    assert.ok(violations.some(v => v.path === 'board.yaml'));
+    assert.ok(violations.some(v => v.path === 'agents/ceo.md' && v.pattern === 'agents/*.md'));
+    assert.ok(violations.some(v => v.path === 'CONSTITUTION.md'));
+  });
+
+  it('returns empty array when no violations', () => {
+    const violations = protection.validatePaths(['src/a.ts', 'src/b.ts']);
+    assert.equal(violations.length, 0);
+  });
+});
