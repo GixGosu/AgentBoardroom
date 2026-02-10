@@ -1,1 +1,0 @@
-{"version":3,"file":"projects.d.ts","sourceRoot":"","sources":["../../../src/cli/commands/projects.ts"],"names":[],"mappings":"AAAA;;GAEG;AAMH,MAAM,WAAW,eAAe;IAC9B,UAAU,CAAC,EAAE,MAAM,CAAC;IACpB,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,GAAG,CAAC,EAAE,MAAM,CAAC;IACb,IAAI,CAAC,EAAE,OAAO,CAAC;CAChB;AAqBD,wBAAgB,eAAe,CAAC,OAAO,EAAE,eAAe,GAAG,IAAI,CAY9D"}
