@@ -29,8 +29,6 @@ export class ChallengeProtocol {
     for (const [roleName, roleConfig] of Object.entries(boardConfig.roles)) {
       if (roleConfig.challenges) {
         // This role is challenged BY the roles listed in its 'challenges' field
-        // Wait — the config says challenges: [cto] on ceo, meaning CTO challenges CEO
-        // So CEO's decisions are challenged by CTO
         this.challengeMap.set(roleName, roleConfig.challenges);
       }
     }

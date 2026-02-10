@@ -106,6 +106,7 @@ export interface DecisionRecord {
   challenge_history: ChallengeRound[];
   status: DecisionStatus;
   supersedes: string | null;
+  dependencies: string[];
   phase: number;
   project: string;
 }
@@ -137,9 +138,14 @@ export interface ChallengeRound {
 
 // ─── Gate Verdicts ──────────────────────────────────────────────────
 
+/**
+ * Full gate verdict schema.
+ * Captures test results, coverage, blocking issues, warnings, and recommendation.
+ * A CONDITIONAL verdict allows advancement with acknowledged warnings/conditions.
+ */
 export interface GateVerdict {
   gate_id: string;
-  verdict: 'PASS' | 'FAIL' | 'CONDITIONAL';
+  verdict: GateVerdictType;
   issued_by: string;
   timestamp: string;
   tests_run: number;
@@ -148,9 +154,39 @@ export interface GateVerdict {
   coverage: string;
   blocking_issues: string[];
   warnings: string[];
+  /** Conditions that must be addressed (for CONDITIONAL verdicts). */
+  conditions?: string[];
   recommendation: string;
   project: string;
   phase: number;
+  /** Optional expiry for CONDITIONAL verdicts (ISO timestamp). */
+  expires_at?: string;
+}
+
+/** Gate verdict outcome types. */
+export type GateVerdictType = 'PASS' | 'FAIL' | 'CONDITIONAL';
+
+// ─── Gate History Query ─────────────────────────────────────────────
+
+/**
+ * Query parameters for searching gate verdict history.
+ * All fields are optional; results match ALL provided criteria.
+ */
+export interface GateHistoryQuery {
+  /** Filter by project name. */
+  project?: string;
+  /** Filter by phase number. */
+  phase?: number;
+  /** Filter by verdict type. */
+  verdict?: GateVerdictType;
+  /** Filter by issuer role. */
+  issued_by?: string;
+  /** Filter verdicts after this timestamp (inclusive). */
+  after?: string;
+  /** Filter verdicts before this timestamp (inclusive). */
+  before?: string;
+  /** Filter by gate ID. */
+  gate_id?: string;
 }
 
 // ─── Phase State ────────────────────────────────────────────────────
@@ -171,7 +207,19 @@ export type PhaseStatus =
   | 'awaiting_review'
   | 'awaiting_gate'
   | 'gated_fail'
+  | 'gated_conditional'
   | 'complete';
+
+/**
+ * Defines the ordered phases and their gate transitions.
+ * Used by the phase state machine for structural enforcement.
+ */
+export interface PhaseDefinition {
+  phase: number;
+  name: string;
+  /** Gate transition name required to exit this phase (if any). */
+  exit_gate?: string;
+}
 
 // ─── Project Registry ───────────────────────────────────────────────
 
