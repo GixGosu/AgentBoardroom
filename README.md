@@ -170,13 +170,6 @@ Full reference: **[CLI Usage Guide](docs/CLI-USAGE.md)**
 | **[Constitution](CONSTITUTION.md)** | Formal governance specification — separation of powers, role definitions, enforcement mechanisms |
 | **[Playbook](PLAYBOOK.md)** | Origin story, failure modes, and design rationale — the "why" behind every pattern |
 
-### Phase Summaries
-
-- [Phase 2 Summary](docs/PHASE-2-SUMMARY.md) — Governance enforcement, file access control, audit logging
-- [Phase 3 Summary](docs/phase-3-summary.md) — Multi-project registry, resource allocation, isolation
-- [Phase 3 Integration Guide](docs/phase-3-integration-guide.md) — How to integrate multi-project features
-- [Phase 4 Summary](docs/PHASE-4-SUMMARY.md) — CLI, templates, and packaging
-
 ### Template Guides
 
 - [Software Development](docs/templates/software-dev.md)
@@ -184,6 +177,33 @@ Full reference: **[CLI Usage Guide](docs/CLI-USAGE.md)**
 - [Content](docs/templates/content.md)
 - [Ops / Incident Response](docs/templates/ops-incident.md)
 - [Custom](docs/templates/custom.md)
+
+## Communicating with the Board
+
+AgentBoardroom uses Mattermost channels as its communication layer. Each channel has a purpose:
+
+| Channel | Purpose | Who Monitors |
+|---|---|---|
+| `#<project>-board` | Board Chair ↔ CEO communication. Post project briefs here. | CEO, all board agents |
+| `#<project>-ceo` | CEO planning visibility. Status updates, phase transitions. | Board Chair, CTO |
+| `#<project>-cto` | CTO architecture decisions and technical reviews. | Board Chair, CEO |
+| `#<project>-decisions` | Append-only decision log. Every Decision Record posted here. | Auditor, Board Chair |
+
+### How to Interact
+
+**Post a project brief** → Write it in `#<project>-board`. The CEO picks it up, decomposes it, and begins the governance cycle.
+
+**Check status** → Ask in `#<project>-board` or use `agentboardroom status`. The CEO responds with current phase, blockers, and team progress.
+
+**Escalations come to you** → When the challenge protocol exceeds max rounds or a gate fails repeatedly, the system escalates to `#<project>-board` with full context and recommended actions.
+
+**Talk to a specific agent** → Post in their channel (`#<project>-cto` for architecture questions). Each agent monitors their own channel.
+
+**Emergency stop** → Post `EMERGENCY STOP` in `#<project>-board`. All agents acknowledge and halt. Resume with `RESUME`.
+
+### Audit Trail
+
+Every decision, challenge, gate verdict, and budget alert is posted to channels and persisted to `state/<project>/`. Nothing happens off the record. The Auditor runs on a cron schedule and flags anomalies — budget overruns, scope creep, stalled teams — directly to the board channel.
 
 ## Why Governance?
 
