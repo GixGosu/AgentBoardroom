@@ -17,7 +17,6 @@ PLAYBOOK.md
 docs/
 
 # Internal
-agents/
 memory/
 state/
 .git/
