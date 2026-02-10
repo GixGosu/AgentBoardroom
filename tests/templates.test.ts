@@ -5,8 +5,8 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 
 import { ConfigLoader } from '../dist/core/config.js';
 
-const TEMPLATES_DIR = resolve(import.meta.dirname, '../templates');
-const AGENTS_DIR = resolve(import.meta.dirname, '../agents/templates');
+const TEMPLATES_DIR = resolve(import.meta.dirname ?? __dirname, '../templates');
+const AGENTS_DIR = resolve(import.meta.dirname ?? __dirname, '../agents/templates');
 
 const TEMPLATE_FILES = ['software-dev.yaml', 'research.yaml', 'content.yaml', 'ops-incident.yaml', 'custom.yaml'];
 

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 
 import { DecisionStore } from '../dist/decisions/store.js';
 
-const TEST_DIR = resolve(import.meta.dirname, '_test_graph_state');
+const TEST_DIR = resolve(import.meta.dirname ?? __dirname, '_test_graph_state');
 
 describe('DecisionStore — Graph Lineage', () => {
   before(() => { mkdirSync(TEST_DIR, { recursive: true }); });

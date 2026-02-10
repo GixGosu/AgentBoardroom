@@ -9,8 +9,8 @@ import { ChallengeProtocol } from '../dist/challenges/protocol.js';
 import { GateEnforcement } from '../dist/gates/enforcement.js';
 import { GovernanceProtection } from '../dist/governance/protection.js';
 
-const TEST_DIR = resolve(import.meta.dirname, '_test_state');
-const TEMPLATE_PATH = resolve(import.meta.dirname, '../templates/software-dev.yaml');
+const TEST_DIR = resolve(import.meta.dirname ?? __dirname, '_test_state');
+const TEMPLATE_PATH = resolve(import.meta.dirname ?? __dirname, '../templates/software-dev.yaml');
 
 describe('ConfigLoader', () => {
   it('loads the software-dev template', () => {
