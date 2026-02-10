@@ -26,7 +26,7 @@ export type {
   PhaseState,
   PhaseStatus,
   PhaseDefinition,
-  ProjectRegistry,
+  ProjectRegistry as ProjectRegistryConfig,
   ProjectEntry,
   AgentTeam,
   TeamMember,
@@ -39,11 +39,71 @@ export { DecisionStore } from './decisions/store.js';
 
 // Challenge Protocol
 export { ChallengeProtocol } from './challenges/protocol.js';
-export type { ChallengeResult } from './challenges/protocol.js';
+export type {
+  ChallengeResult,
+  CounterProposal,
+  CounterProposalStatus,
+  ChallengeAuditEntry,
+  ChallengeHistoryQuery,
+} from './challenges/protocol.js';
 
 // Gate Enforcement
 export { GateEnforcement } from './gates/enforcement.js';
 
 // Governance
 export { GovernanceProtection } from './governance/protection.js';
-export type { AccessCheckResult } from './governance/protection.js';
+export type {
+  AccessCheckResult,
+  AuditLogEntry,
+  AuditLogQuery,
+  AuditSummary,
+  ViolationReport,
+} from './governance/protection.js';
+
+// Dashboard
+export { DashboardGenerator, DashboardAggregator } from './dashboard/index.js';
+export type {
+  DashboardRenderOptions,
+  DashboardDataSource,
+  DashboardSnapshot,
+  ProjectSnapshot,
+  AgentSnapshot,
+  AgentActivityStatus,
+  TeamSnapshot,
+  DecisionSnapshot,
+  GateSnapshot,
+} from './dashboard/index.js';
+
+// Projects — Multi-project registry, allocation, isolation
+export {
+  ProjectRegistry,
+  ResourceAllocator,
+  IsolationEnforcer,
+} from './projects/index.js';
+export type {
+  ProjectState,
+  ProjectStatus,
+  RegistrySnapshot,
+  ResourcePool,
+  ProjectAllocation,
+  AllocationRequest,
+  AllocationResult,
+  IsolationContext,
+  AccessRequest,
+  AccessResult,
+  IsolationViolation,
+} from './projects/index.js';
+
+// Adapters — OpenClaw
+export {
+  OpenClawRuntimeAdapter,
+  OpenClawChannelAdapter,
+} from './adapters/openclaw/index.js';
+export type {
+  OpenClawRuntimeConfig,
+  OpenClawTools,
+  OpenClawSessionConfig,
+  FileAccessPolicy,
+  OpenClawChannelConfig,
+  OpenClawMessaging,
+} from './adapters/openclaw/index.js';
