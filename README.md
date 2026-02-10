@@ -201,6 +201,8 @@ AgentBoardroom uses Mattermost channels as its communication layer. Each channel
 
 **Emergency stop** → Post `EMERGENCY STOP` in `#<project>-board`. All agents acknowledge and halt. Resume with `RESUME`.
 
+**From any channel** → Board agents are OpenClaw sessions. You can reference them from any channel your OpenClaw instance monitors — ask your agent to relay a message to the CEO, check board status, or post a brief on your behalf. You don't have to be in a board channel to interact with the board.
+
 ### Audit Trail
 
 Every decision, challenge, gate verdict, and budget alert is posted to channels and persisted to `state/<project>/`. Nothing happens off the record. The Auditor runs on a cron schedule and flags anomalies — budget overruns, scope creep, stalled teams — directly to the board channel.
