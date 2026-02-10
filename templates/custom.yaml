@@ -1,0 +1,121 @@
+# AgentBoardroom — Custom Board Template
+# Blank template for user-defined governance structures.
+# Replace placeholder values with your own roles, gates, and configuration.
+
+name: "Custom Board"
+version: 1
+
+roles:
+  lead:
+    title: "Lead"
+    prompt: agents/templates/custom/lead.md
+    responsibilities:
+      - planning
+      - decomposition
+      - coordination
+      - replanning
+      - resource_allocation
+    challenges: [advisor]
+    gates: [reviewer]
+    model_tier: high
+    session_type: persistent
+
+  advisor:
+    title: "Advisor"
+    prompt: agents/templates/custom/advisor.md
+    responsibilities:
+      - design_review
+      - technical_authority
+    challenges: [lead]
+    model_tier: high
+    session_type: persistent
+
+  reviewer:
+    title: "Reviewer"
+    prompt: agents/templates/custom/reviewer.md
+    responsibilities:
+      - validation
+      - gate_verdicts
+    gates: [teams]
+    model_tier: medium
+    session_type: spawned
+
+  monitor:
+    title: "Monitor"
+    prompt: agents/templates/custom/monitor.md
+    responsibilities:
+      - compliance
+      - anomaly_detection
+      - budget
+    model_tier: low
+    session_type: cron
+    interval: 15m
+
+teams:
+  defaults:
+    max_concurrent_members: 6
+    model_tier: medium
+    session_type: ephemeral
+    self_governing: true
+
+projects:
+  max_concurrent: 10
+  resource_competition: lead
+  board_chair_override: true
+
+challenge:
+  max_rounds: 3
+  auto_escalation: true
+  default_action: challenge
+
+gates:
+  phase_1_to_phase_2:
+    required: [lead, advisor]
+  phase_2_to_phase_3:
+    required: [advisor]
+  phase_3_to_phase_4:
+    required: [reviewer]
+    verdict_type: structural
+  phase_4_to_complete:
+    required: [lead, advisor, reviewer, monitor]
+    verdict_type: structural
+
+budget:
+  tiers:
+    high:
+      boardroom: high
+      teams: medium
+    medium:
+      boardroom: medium
+      teams: low
+    low:
+      boardroom: medium
+      teams: low
+    frozen:
+      all: local_only
+      action: pause_and_escalate
+  thresholds:
+    medium_at: 50
+    low_at: 80
+    freeze_at: 100
+
+governance:
+  self_modification: prohibited
+  protected_assets:
+    - board.yaml
+    - agents/*.md
+    - CONSTITUTION.md
+    - templates/*.yaml
+
+channels:
+  primary: "#board"
+  per_agent: true
+  decision_log: "#decision-log"
+  messaging_platform: mattermost
+
+state:
+  backend: git
+  directory: ./state/
+
+runtime:
+  platform: openclaw

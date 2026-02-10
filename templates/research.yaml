@@ -1,5 +1,5 @@
-# AgentBoardroom — Research Template
-# Board configuration for deep research with verification and peer review.
+# AgentBoardroom — Research Board Template
+# Board configuration for deep research projects with verification pipelines.
 
 name: "Research Board"
 version: 1
@@ -7,47 +7,53 @@ version: 1
 roles:
   pi:
     title: "Principal Investigator"
-    prompt: agents/ceo.md
+    prompt: agents/templates/research/pi.md
     responsibilities:
-      - research_planning
-      - hypothesis_formation
+      - planning
+      - decomposition
       - coordination
+      - replanning
+      - hypothesis_formation
       - resource_allocation
     challenges: [methodologist]
-    gates: [reviewer, auditor]
+    gates: [reviewer, fact_checker]
     model_tier: high
     session_type: persistent
 
   methodologist:
     title: "Methodologist"
-    prompt: agents/cto.md
+    prompt: agents/templates/research/methodologist.md
     responsibilities:
-      - methodology_review
-      - experimental_design
+      - methodology_design
+      - design_review
+      - technical_authority
       - statistical_rigor
     challenges: [pi]
     model_tier: high
     session_type: persistent
 
   reviewer:
-    title: "Peer Reviewer"
-    prompt: agents/qa.md
+    title: "Reviewer"
+    prompt: agents/templates/research/reviewer.md
     responsibilities:
-      - fact_checking
-      - source_verification
-      - quality_gates
+      - peer_review
+      - validation
+      - gate_verdicts
+      - quality_assessment
     gates: [teams]
     model_tier: medium
     session_type: spawned
 
-  auditor:
-    title: "Ethics & Budget Auditor"
-    prompt: agents/auditor.md
+  fact_checker:
+    title: "Fact-Checker"
+    prompt: agents/templates/research/fact-checker.md
     responsibilities:
-      - budget
-      - ethics_compliance
-      - source_attribution
-    model_tier: low
+      - source_verification
+      - claim_validation
+      - compliance
+      - anomaly_detection
+      - citation_audit
+    model_tier: medium
     session_type: cron
     interval: 15m
 
@@ -57,6 +63,11 @@ teams:
     model_tier: medium
     session_type: ephemeral
     self_governing: true
+
+projects:
+  max_concurrent: 5
+  resource_competition: pi
+  board_chair_override: true
 
 challenge:
   max_rounds: 3
@@ -68,12 +79,31 @@ gates:
     required: [pi, methodologist]
   methodology_to_research:
     required: [methodologist]
-  research_to_synthesis:
+  research_to_review:
     required: [reviewer]
     verdict_type: structural
-  synthesis_to_publication:
-    required: [pi, methodologist, reviewer, auditor]
+  review_to_publication:
+    required: [pi, methodologist, reviewer, fact_checker]
     verdict_type: structural
+
+budget:
+  tiers:
+    high:
+      boardroom: high
+      teams: medium
+    medium:
+      boardroom: medium
+      teams: low
+    low:
+      boardroom: medium
+      teams: low
+    frozen:
+      all: local_only
+      action: pause_and_escalate
+  thresholds:
+    medium_at: 50
+    low_at: 80
+    freeze_at: 100
 
 governance:
   self_modification: prohibited
@@ -81,11 +111,12 @@ governance:
     - board.yaml
     - agents/*.md
     - CONSTITUTION.md
+    - templates/*.yaml
 
 channels:
   primary: "#research-board"
   per_agent: true
-  decision_log: "#research-decisions"
+  decision_log: "#research-log"
   messaging_platform: mattermost
 
 state:

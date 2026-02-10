@@ -1,0 +1,128 @@
+# AgentBoardroom — Operations / Incident Response Board Template
+# Board configuration for incident response with coordination and communication.
+
+name: "Ops Incident Board"
+version: 1
+
+roles:
+  incident_commander:
+    title: "Incident Commander"
+    prompt: agents/templates/ops-incident/incident-commander.md
+    responsibilities:
+      - planning
+      - decomposition
+      - coordination
+      - replanning
+      - resource_allocation
+      - escalation_management
+    challenges: [sre]
+    gates: [sre, auditor]
+    model_tier: high
+    session_type: persistent
+
+  sre:
+    title: "SRE"
+    prompt: agents/templates/ops-incident/sre.md
+    responsibilities:
+      - architecture
+      - design_review
+      - technical_authority
+      - root_cause_analysis
+      - remediation
+    challenges: [incident_commander]
+    model_tier: high
+    session_type: persistent
+
+  comms_lead:
+    title: "Communications Lead"
+    prompt: agents/templates/ops-incident/comms-lead.md
+    responsibilities:
+      - stakeholder_communication
+      - status_updates
+      - validation
+      - gate_verdicts
+    gates: [teams]
+    model_tier: medium
+    session_type: spawned
+
+  auditor:
+    title: "Auditor"
+    prompt: agents/templates/ops-incident/auditor.md
+    responsibilities:
+      - compliance
+      - anomaly_detection
+      - post_mortem
+      - budget
+      - timeline_tracking
+    model_tier: low
+    session_type: cron
+    interval: 10m
+
+teams:
+  defaults:
+    max_concurrent_members: 8
+    model_tier: medium
+    session_type: ephemeral
+    self_governing: true
+
+projects:
+  max_concurrent: 3
+  resource_competition: incident_commander
+  board_chair_override: true
+
+challenge:
+  max_rounds: 2
+  auto_escalation: true
+  default_action: challenge
+
+gates:
+  triage_to_investigation:
+    required: [incident_commander, sre]
+  investigation_to_remediation:
+    required: [sre]
+  remediation_to_verification:
+    required: [comms_lead]
+    verdict_type: structural
+  verification_to_resolved:
+    required: [incident_commander, sre, comms_lead, auditor]
+    verdict_type: structural
+
+budget:
+  tiers:
+    high:
+      boardroom: high
+      teams: high
+    medium:
+      boardroom: high
+      teams: medium
+    low:
+      boardroom: medium
+      teams: low
+    frozen:
+      all: local_only
+      action: pause_and_escalate
+  thresholds:
+    medium_at: 60
+    low_at: 85
+    freeze_at: 100
+
+governance:
+  self_modification: prohibited
+  protected_assets:
+    - board.yaml
+    - agents/*.md
+    - CONSTITUTION.md
+    - templates/*.yaml
+
+channels:
+  primary: "#incident-room"
+  per_agent: true
+  decision_log: "#incident-log"
+  messaging_platform: mattermost
+
+state:
+  backend: git
+  directory: ./state/
+
+runtime:
+  platform: openclaw

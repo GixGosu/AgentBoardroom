@@ -1,0 +1,127 @@
+# AgentBoardroom — Content Board Template
+# Board configuration for content pipelines with quality gates.
+
+name: "Content Board"
+version: 1
+
+roles:
+  editor_in_chief:
+    title: "Editor-in-Chief"
+    prompt: agents/templates/content/editor-in-chief.md
+    responsibilities:
+      - planning
+      - decomposition
+      - coordination
+      - replanning
+      - editorial_direction
+      - resource_allocation
+    challenges: [style_auditor]
+    gates: [fact_checker, style_auditor]
+    model_tier: high
+    session_type: persistent
+
+  writer:
+    title: "Writer"
+    prompt: agents/templates/content/writer.md
+    responsibilities:
+      - content_creation
+      - drafting
+      - revision
+      - design_review
+    challenges: [editor_in_chief]
+    model_tier: high
+    session_type: persistent
+
+  fact_checker:
+    title: "Fact-Checker"
+    prompt: agents/templates/content/fact-checker.md
+    responsibilities:
+      - source_verification
+      - claim_validation
+      - validation
+      - gate_verdicts
+    gates: [teams]
+    model_tier: medium
+    session_type: spawned
+
+  style_auditor:
+    title: "Style Auditor"
+    prompt: agents/templates/content/style-auditor.md
+    responsibilities:
+      - style_compliance
+      - tone_consistency
+      - compliance
+      - anomaly_detection
+      - brand_alignment
+    model_tier: low
+    session_type: cron
+    interval: 15m
+
+teams:
+  defaults:
+    max_concurrent_members: 4
+    model_tier: medium
+    session_type: ephemeral
+    self_governing: true
+
+projects:
+  max_concurrent: 8
+  resource_competition: editor_in_chief
+  board_chair_override: true
+
+challenge:
+  max_rounds: 3
+  auto_escalation: true
+  default_action: challenge
+
+gates:
+  brief_to_drafting:
+    required: [editor_in_chief]
+  drafting_to_review:
+    required: [writer]
+  review_to_fact_check:
+    required: [fact_checker]
+    verdict_type: structural
+  fact_check_to_publish:
+    required: [editor_in_chief, fact_checker, style_auditor]
+    verdict_type: structural
+
+budget:
+  tiers:
+    high:
+      boardroom: high
+      teams: medium
+    medium:
+      boardroom: medium
+      teams: low
+    low:
+      boardroom: medium
+      teams: low
+    frozen:
+      all: local_only
+      action: pause_and_escalate
+  thresholds:
+    medium_at: 50
+    low_at: 80
+    freeze_at: 100
+
+governance:
+  self_modification: prohibited
+  protected_assets:
+    - board.yaml
+    - agents/*.md
+    - CONSTITUTION.md
+    - templates/*.yaml
+
+channels:
+  primary: "#content-board"
+  per_agent: true
+  decision_log: "#content-log"
+  messaging_platform: mattermost
+
+state:
+  backend: git
+  directory: ./state/
+
+runtime:
+  platform: openclaw
