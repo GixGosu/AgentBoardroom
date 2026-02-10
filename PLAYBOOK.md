@@ -2,7 +2,7 @@
 
 **Corporate Governance for AI Agents**
 
-*The patterns behind autonomous multi-agent decision systems that don't self-destruct.*
+*The patterns behind autonomous multi-agent systems that ship complete on the first pass.*
 
 ---
 
