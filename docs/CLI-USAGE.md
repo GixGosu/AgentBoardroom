@@ -142,6 +142,169 @@ agentboardroom decisions --limit 5 --json
 
 ---
 
+### `record-decision` — Record a Governance Decision
+
+Record a formal decision record. This command is primarily used by agents to create decision records via exec commands.
+
+```bash
+agentboardroom record-decision \
+  --author <role> \
+  --type <type> \
+  --summary "Brief decision summary" \
+  --rationale "Detailed reasoning" \
+  --project <name> \
+  [--phase <n>] \
+  [--status <status>]
+```
+
+**Required Options:**
+
+| Option | Description |
+|---|---|
+| `--author <role>` | Decision author: `ceo`, `cto`, `qa` |
+| `--type <type>` | Decision type: `planning`, `architecture`, `gate`, `challenge`, `resource`, `scope`, `technical`, `process` |
+| `--summary <text>` | Brief decision summary (one line) |
+| `--rationale <text>` | Detailed reasoning and justification |
+| `--project <name>` | Target project name |
+
+**Optional:**
+
+| Option | Description |
+|---|---|
+| `--phase <n>` | Phase number (default: 0) |
+| `--status <status>` | Decision status: `accepted`, `challenged`, `pending` (default: `accepted`) |
+| `--evidence <text>` | Supporting evidence (can be repeated) |
+| `--dependencies <ids>` | Comma-separated decision IDs this depends on |
+
+**Type Aliases:**
+
+- `planning` → maps to `plan_approval`
+- `architecture` → maps to `cto_review`
+- `gate` → maps to `qa_gate`
+- `challenge` → maps to `cto_review`
+
+**Status Aliases:**
+
+- `pending` → maps to `proposed`
+
+**Examples:**
+
+```bash
+# CEO approves a phase plan
+agentboardroom record-decision \
+  --author ceo \
+  --type planning \
+  --summary "Approve Phase 1 implementation plan" \
+  --rationale "Plan is well-structured with clear parallelization opportunities. Resource estimates are within budget. All prerequisites completed." \
+  --project my-app \
+  --phase 1 \
+  --status accepted
+
+# CTO challenges architecture
+agentboardroom record-decision \
+  --author cto \
+  --type architecture \
+  --summary "Challenge: Circular dependency detected in module structure" \
+  --rationale "Module A imports from module B which imports from module A. This creates a circular dependency that will cause issues during testing. Recommend extracting shared types to a common module and reversing the dependency direction." \
+  --project my-app \
+  --phase 1 \
+  --status challenged
+
+# QA records gate verdict (PASS)
+agentboardroom record-decision \
+  --author qa \
+  --type gate \
+  --summary "Phase 2 gate: PASS (95/100 tests, 82% coverage)" \
+  --rationale "All critical tests passing. Coverage above 70% threshold. No blocking issues. Minor warnings on edge case handling documented for next phase." \
+  --project my-app \
+  --phase 2 \
+  --status accepted
+
+# QA records gate verdict (FAIL)
+agentboardroom record-decision \
+  --author qa \
+  --type gate \
+  --summary "Phase 1 gate: FAIL (45/100 tests, 58% coverage)" \
+  --rationale "Critical integration tests failing. Coverage below threshold. Blocking issues: auth module tests timeout, data integrity checks fail on edge cases. Recommend replan with focus on test infrastructure." \
+  --project my-app \
+  --phase 1 \
+  --status challenged
+
+# Resource allocation decision
+agentboardroom record-decision \
+  --author ceo \
+  --type resource \
+  --summary "Reallocate 2 workers from project-alpha to project-beta" \
+  --rationale "Project-beta blocked on understaffing; alpha ahead of schedule by 2 days. This reallocation unblocks beta while maintaining alpha timeline." \
+  --project my-app \
+  --phase 2 \
+  --status accepted
+
+# JSON output (for scripting)
+agentboardroom record-decision \
+  --author ceo \
+  --type planning \
+  --summary "Test decision" \
+  --rationale "Testing CLI" \
+  --project my-app \
+  --json
+```
+
+**Output (non-JSON):**
+
+```
+✓ Decision DEC-0042 recorded successfully
+
+ID        DEC-0042
+Author    ceo
+Type      plan_approval
+Status    accepted
+Summary   Approve Phase 1 implementation plan
+Project   my-app
+Phase     1
+```
+
+**Error Handling:**
+
+The command validates all inputs and returns appropriate exit codes:
+
+- Exit code `0`: Success
+- Exit code `1`: Validation error or project not found
+
+```bash
+# Missing required field
+agentboardroom record-decision --author ceo --type planning --project my-app
+# Error: --summary is required
+
+# Invalid author
+agentboardroom record-decision --author unknown --type planning --summary "Test" --rationale "Test" --project my-app
+# Error: Invalid author: unknown. Must be one of: ceo, cto, qa
+
+# Project doesn't exist
+agentboardroom record-decision --author ceo --type planning --summary "Test" --rationale "Test" --project nonexistent
+# Error: Project "nonexistent" not found. Initialize it first with 'agentboardroom init'.
+```
+
+**Use in Agent Prompts:**
+
+Agents call this command via exec to formally record decisions:
+
+```typescript
+// In agent code
+exec(`agentboardroom record-decision \
+  --author ceo \
+  --type planning \
+  --summary "Phase 1 approved" \
+  --rationale "Plan meets all criteria" \
+  --project ${projectName} \
+  --phase 1 \
+  --status accepted`);
+```
+
+All decisions are written to `state/<project>/decisions.json` with full lineage tracking.
+
+---
+
 ### `gates` — Query Gate Verdict History
 
 Search and filter gate verdicts across all projects.

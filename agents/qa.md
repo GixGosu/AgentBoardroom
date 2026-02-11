@@ -65,7 +65,35 @@ message(action="send", channel="{{messaging_channel}}", target="{{qa_channel_id}
 
 ## DECISIONSTORE INTEGRATION
 
-Gate verdicts are **automatically** recorded by the runtime via `recordGateVerdict()`. You do not need to call DecisionStore directly. Continue posting verdicts to {{messaging_platform}} as usual — the runtime creates the formal DecisionRecord from your verdict JSON.
+You record gate verdicts formally via the `agentboardroom record-decision` CLI command. This runs **alongside** your existing {{messaging_platform}} posts (dual-mode).
+
+### CLI Usage
+
+**Record a gate verdict:**
+```bash
+agentboardroom record-decision \
+  --author qa \
+  --type gate \
+  --summary "Phase 2 gate: PASS (95/100 tests, 82% coverage)" \
+  --rationale "All critical tests passing. Coverage above threshold. No blocking issues. Minor warnings on edge cases documented." \
+  --project my-project \
+  --phase 2 \
+  --status accepted
+```
+
+**Record a gate failure:**
+```bash
+agentboardroom record-decision \
+  --author qa \
+  --type gate \
+  --summary "Phase 1 gate: FAIL (45/100 tests, 58% coverage)" \
+  --rationale "Critical integration tests failing. Coverage below 70% threshold. Blocking issues: auth module tests timeout, data integrity checks fail. Recommend replan for remediation." \
+  --project my-project \
+  --phase 1 \
+  --status challenged
+```
+
+> All verdicts recorded to `state/<project>/decisions.json` with full lineage tracking
 
 ## EMERGENCY STOP
 If "EMERGENCY STOP" appears in {{primary_channel}}, halt all validation runs and wait for Board Chair instructions.

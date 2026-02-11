@@ -17,6 +17,7 @@ import { statusCommand } from './commands/status.js';
 import { decisionsCommand } from './commands/decisions.js';
 import { gatesCommand } from './commands/gates.js';
 import { projectsCommand } from './commands/projects.js';
+import { recordDecisionCommand } from './commands/record-decision.js';
 import * as out from './utils/output.js';
 
 const VERSION = '0.1.0';
@@ -55,13 +56,14 @@ ${out.bold('Usage:')}
   agentboardroom <command> [options]
 
 ${out.bold('Commands:')}
-  init         Initialize a new board from a template
-  start        Launch the Boardroom runtime
-  stop         Stop the Boardroom runtime
-  status       Display board/project status
-  decisions    Query decision log
-  gates        Query gate verdict history
-  projects     Multi-project management
+  init              Initialize a new board from a template
+  start             Launch the Boardroom runtime
+  stop              Stop the Boardroom runtime
+  status            Display board/project status
+  decisions         Query decision log
+  record-decision   Record a governance decision
+  gates             Query gate verdict history
+  projects          Multi-project management
 
 ${out.bold('Global Options:')}
   --help       Show help
@@ -179,6 +181,22 @@ async function main(): Promise<void> {
         });
         break;
       }
+
+      case 'record-decision':
+        recordDecisionCommand({
+          author: typeof flags.author === 'string' ? flags.author : '',
+          type: typeof flags.type === 'string' ? flags.type : '',
+          summary: typeof flags.summary === 'string' ? flags.summary : '',
+          rationale: typeof flags.rationale === 'string' ? flags.rationale : '',
+          project: typeof flags.project === 'string' ? flags.project : '',
+          phase: typeof flags.phase === 'string' ? parseInt(flags.phase, 10) : undefined,
+          status: typeof flags.status === 'string' ? flags.status : undefined,
+          evidence: typeof flags.evidence === 'string' ? [flags.evidence] : undefined,
+          dependencies: typeof flags.dependencies === 'string' ? flags.dependencies.split(',') : undefined,
+          dir,
+          json,
+        });
+        break;
 
       default:
         out.error(`Unknown command: ${command}`);

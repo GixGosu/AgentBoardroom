@@ -3,3 +3,4 @@ dist/
 coverage/
 tests/_test_state/
 tests/_test_graph_state/
+smoke-test-*/

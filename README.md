@@ -202,14 +202,51 @@ AgentBoardroom ships with pre-built governance configurations for different doma
 
 ## CLI
 
-The `agentboardroom` CLI provides 5 commands for managing boards and projects:
+The `agentboardroom` CLI provides 6 commands for managing boards and projects:
 
 ```bash
-agentboardroom init         # Initialize a new board from a template
-agentboardroom status       # Display board/project status
-agentboardroom decisions    # Query decision log (filter by --author, --challenged, --phase, --format)
-agentboardroom gates        # Query gate verdict history
-agentboardroom projects     # Multi-project management (list, prioritize)
+agentboardroom init              # Initialize a new board from a template
+agentboardroom status            # Display board/project status
+agentboardroom decisions         # Query decision log (filter by --author, --challenged, --phase, --format)
+agentboardroom record-decision   # Record a governance decision (for agents to create decision records)
+agentboardroom gates             # Query gate verdict history
+agentboardroom projects          # Multi-project management (list, prioritize)
+```
+
+### Recording Decisions (for agents)
+
+Agents use `record-decision` to formally record governance decisions:
+
+```bash
+# CEO approves a plan
+agentboardroom record-decision \
+  --author ceo \
+  --type planning \
+  --summary "Approve Phase 1 implementation plan" \
+  --rationale "Plan is well-structured, parallelizable, within budget" \
+  --project my-app \
+  --phase 1 \
+  --status accepted
+
+# CTO challenges architecture
+agentboardroom record-decision \
+  --author cto \
+  --type architecture \
+  --summary "Challenge: Circular dependency in module structure" \
+  --rationale "Module A depends on B which depends on A. Refactor needed." \
+  --project my-app \
+  --phase 1 \
+  --status challenged
+
+# QA records gate verdict
+agentboardroom record-decision \
+  --author qa \
+  --type gate \
+  --summary "Phase 1 gate: PASS (95/100 tests, 82% coverage)" \
+  --rationale "All critical tests passing. Coverage above threshold." \
+  --project my-app \
+  --phase 1 \
+  --status accepted
 ```
 
 Full reference: **[CLI Usage Guide](docs/CLI-USAGE.md)**
