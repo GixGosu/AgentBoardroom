@@ -248,6 +248,13 @@ describe('CLI: decisions command', () => {
       { id: 'DEC-0003', timestamp: '2025-01-03T00:00:00Z', author: 'ceo', type: 'resource', summary: 'Add team member', status: 'proposed', challenge_rounds: 0, project: 'other-app', phase: 0 },
     ];
     writeFileSync(join(TEST_DIR, 'state', 'decisions.json'), JSON.stringify(decisions));
+    // Also write per-project decisions for project-filtered queries
+    const demoAppDir = join(TEST_DIR, 'state', 'demo-app');
+    mkdirSync(demoAppDir, { recursive: true });
+    writeFileSync(join(demoAppDir, 'decisions.json'), JSON.stringify(decisions.filter(d => d.project === 'demo-app')));
+    const otherAppDir = join(TEST_DIR, 'state', 'other-app');
+    mkdirSync(otherAppDir, { recursive: true });
+    writeFileSync(join(otherAppDir, 'decisions.json'), JSON.stringify(decisions.filter(d => d.project === 'other-app')));
   });
   afterEach(cleanTestDir);
 
