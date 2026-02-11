@@ -135,17 +135,25 @@ async function main(): Promise<void> {
         });
         break;
 
-      case 'decisions':
+      case 'decisions': {
+        // Support both positional project arg and --project flag
+        const decProject = args[0] ?? (typeof flags.project === 'string' ? flags.project : undefined);
+        const decFormat = typeof flags.format === 'string' ? flags.format : (json ? 'json' : 'table');
         decisionsCommand({
-          project: typeof flags.project === 'string' ? flags.project : undefined,
+          project: decProject,
           status: typeof flags.status === 'string' ? flags.status : undefined,
           type: typeof flags.type === 'string' ? flags.type : undefined,
           author: typeof flags.author === 'string' ? flags.author : undefined,
+          phase: typeof flags.phase === 'string' ? parseInt(flags.phase, 10) : undefined,
+          since: typeof flags.since === 'string' ? flags.since : undefined,
+          challenged: flags.challenged === true,
+          format: decFormat as 'table' | 'json',
           limit: typeof flags.limit === 'string' ? parseInt(flags.limit, 10) : undefined,
           dir,
           json,
         });
         break;
+      }
 
       case 'gates':
         gatesCommand({

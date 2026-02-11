@@ -207,7 +207,7 @@ The `agentboardroom` CLI provides 5 commands for managing boards and projects:
 ```bash
 agentboardroom init         # Initialize a new board from a template
 agentboardroom status       # Display board/project status
-agentboardroom decisions    # Query decision log
+agentboardroom decisions    # Query decision log (filter by --author, --challenged, --phase, --format)
 agentboardroom gates        # Query gate verdict history
 agentboardroom projects     # Multi-project management (list, prioritize)
 ```

@@ -117,7 +117,12 @@ export type DecisionType =
   | 'resource'
   | 'scope'
   | 'technical'
-  | 'process';
+  | 'process'
+  | 'plan_approval'       // Governance: CEO approves phase plan
+  | 'cto_review'          // Governance: CTO accepts/challenges
+  | 'qa_gate'             // Governance: QA gate verdict
+  | 'resource_allocation' // Governance: Budget, model tier, team assignment
+  | 'escalation';         // Governance: Escalated to Board Chair
 
 export type DecisionStatus =
   | 'proposed'

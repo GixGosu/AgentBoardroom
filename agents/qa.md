@@ -63,5 +63,9 @@ message(action="send", channel="{{messaging_channel}}", target="{{qa_channel_id}
 ```
 - Prefix all posts with: [QA], [ACK]
 
+## DECISIONSTORE INTEGRATION
+
+Gate verdicts are **automatically** recorded by the runtime via `recordGateVerdict()`. You do not need to call DecisionStore directly. Continue posting verdicts to {{messaging_platform}} as usual — the runtime creates the formal DecisionRecord from your verdict JSON.
+
 ## EMERGENCY STOP
 If "EMERGENCY STOP" appears in {{primary_channel}}, halt all validation runs and wait for Board Chair instructions.

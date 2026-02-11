@@ -191,3 +191,34 @@ The relationship between the Boardroom and teams mirrors federalism:
 - Gate history persisted to `state/_gate_history.json` (cross-project queryable)
 - Project registry in `state/{project}/project.json`
 - State survives restarts — file-based backend (git-tracked optional)
+
+## DecisionStore Integration (Skill Runtime Bridge)
+
+The `DecisionStoreAdapter` (`skill/src/runtime/DecisionStoreAdapter.ts`) bridges governance agents to the core `DecisionStore`:
+
+```
+Agent Prompt → DecisionStoreAdapter → DecisionStore → decisions.json
+```
+
+### Adapter Methods
+
+| Method | Agent | Description |
+|---|---|---|
+| `recordPlanApproval()` | CEO | Creates plan_approval decision (auto-accepted) |
+| `recordCTOReview()` | CTO | Accepts or challenges an existing decision |
+| `recordGateVerdict()` | QA | Records a gate verdict as a decision record |
+
+### Workflow
+
+1. CEO proposes plan → `store.propose()` creates `proposed` decision
+2. CTO reviews → `challenge()` or `accept()` updates status
+3. CEO may revise → new decision with `supersedes` link to original
+4. QA gates → `recordGateVerdict()` auto-accepts structural verdicts
+
+### CLI Query
+
+```bash
+agentboardroom decisions <project> [--author ceo] [--challenged] [--phase 1] [--format json]
+```
+
+Queries `decisions.json` with filters and outputs table or JSON format.

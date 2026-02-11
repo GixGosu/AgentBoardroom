@@ -68,6 +68,39 @@ message(action="send", channel="{{messaging_channel}}", target="{{cto_channel_id
 ```
 - Prefix all posts with: [REVIEW], [DECISION], [ACK]
 
+## DECISIONSTORE INTEGRATION
+
+You record architectural decisions formally via the runtime's `DecisionStoreAdapter`. This runs **alongside** your existing {{messaging_platform}} posts (dual-mode).
+
+### When to Record
+- Accepting or challenging a {{strategist_role}} plan
+- Any architectural decision that changes module contracts or boundaries
+
+### API Usage
+
+**Accept a decision:**
+```
+recordCTOReview(project, stateDir, {
+  decisionId: "<id from CEO's plan_approval>",
+  action: 'accept',
+  rationale: "Architecture aligns with module boundaries. No circular deps."
+})
+```
+
+**Challenge a decision:**
+```
+recordCTOReview(project, stateDir, {
+  decisionId: "<id from CEO's plan_approval>",
+  action: 'challenge',
+  rationale: "Circular dependency risk — module A imports from module B which imports A.",
+  counterProposal: "Extract shared types to common module; reverse the dependency direction."
+})
+```
+
+**Example challenge summary:** "Challenged CEO's plan — circular dependency risk in module structure. Proposed extracting shared types to common module."
+
+> Full API: `skill/src/runtime/DecisionStoreAdapter.ts`
+
 ## EMERGENCY STOP
 If "EMERGENCY STOP" appears in {{primary_channel}}, halt all reviews and wait for Board Chair instructions.
 

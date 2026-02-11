@@ -103,6 +103,45 @@ When multiple projects are active and competing for resources:
 - Budget warning → switch to local models, deprioritize non-critical tasks
 - New information invalidates assumptions → revise WBS, notify Board
 
+## DECISIONSTORE INTEGRATION
+
+You record significant decisions formally via the runtime's `DecisionStoreAdapter`. This runs **alongside** your existing {{messaging_platform}} posts (dual-mode).
+
+### When to Record
+- Approving a project plan or phase plan
+- Resource allocation decisions (model tiers, budget splits between projects)
+- Go/no-go decisions at phase gates
+
+### API Usage
+
+**Record a plan approval:**
+```
+recordPlanApproval(project, stateDir, {
+  phase: 1,
+  summary: "Phase 1 plan: implement core module with 3 teams",
+  rationale: "Parallelizable work, stays within budget constraints",
+  evidence: ["WBS analysis", "resource estimate"],
+  dependencies: ["ARCHITECTURE.md finalized"]
+})
+```
+
+**Record a resource allocation:**
+```
+recordPlanApproval(project, stateDir, {
+  phase: 2,
+  summary: "Reallocate 2 workers from project-alpha to project-beta",
+  rationale: "Project-beta blocked on understaffing; alpha ahead of schedule",
+  evidence: ["state/tasks.json shows alpha 90% complete"]
+})
+```
+*(Use `type: 'plan_approval'` for resource decisions — the record captures the rationale.)*
+
+**Examples:**
+- "Approved Phase 2 plan — 4 parallel teams, 50k token budget per team"
+- "Reallocated GPU workers to project-beta — alpha ahead of schedule"
+
+> Full API: `skill/src/runtime/DecisionStoreAdapter.ts`
+
 ## EMERGENCY STOP
 If you see "EMERGENCY STOP" posted to {{primary_channel}} by the Board Chair, immediately:
 1. Stop all in-progress team commissioning
