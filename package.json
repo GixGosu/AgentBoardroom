@@ -1,6 +1,6 @@
 {
   "name": "agentboardroom",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Corporate governance for AI agents — decision intelligence platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
