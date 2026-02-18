@@ -222,3 +222,32 @@ agentboardroom decisions <project> [--author ceo] [--challenged] [--phase 1] [--
 ```
 
 Queries `decisions.json` with filters and outputs table or JSON format.
+
+---
+
+## Standing Architectural Decisions
+
+### ARCH-001: Heartbeat Files Must Use Execution-Time Timestamps
+
+**Date:** 2026-02-18  
+**Status:** Active  
+**Decided By:** CTO (ratified by CEO)
+
+**Decision:**  
+Any file created as a heartbeat, liveness probe, or aliveness signal MUST write the actual UTC timestamp at the time of execution — not a hardcoded or pre-set value from the task brief.
+
+**Rationale:**  
+A heartbeat file's purpose is to prove the system was alive *at that moment*. A hardcoded timestamp proves only that the brief was written at that time — which is useless as a liveness signal. The file must be a truthful record of when it was created.
+
+**Applies To:**  
+- `alive.txt` files
+- Heartbeat check outputs
+- Any file whose purpose is to signal system liveness or last-known-alive time
+
+**Implementation:**  
+```bash
+echo "AgentBoardroom is alive. Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" > alive.txt
+```
+
+**Note:**  
+Smoke Test: Heartbeat Check (2026-02-18) used a hardcoded timestamp from the brief (Option B). This standing decision supersedes that approach for all future heartbeat operations. If a brief specifies hardcoded content for a heartbeat file, workers should flag it and use the execution timestamp instead.
