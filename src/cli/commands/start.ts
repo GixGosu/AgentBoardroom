@@ -15,7 +15,7 @@ import { existsSync } from 'node:fs';
 import { ConfigLoader } from '../../core/config.js';
 import { GovernanceProtection } from '../../governance/protection.js';
 import { OpenClawRuntimeAdapter } from '../../adapters/openclaw/runtime.js';
-import { OpenClawCLITools } from '../../adapters/openclaw/tools.js';
+import { createTools, type AdapterMode, type BoardTools } from '../../adapters/openclaw/factory.js';
 import { StateManager } from '../../adapters/openclaw/state.js';
 import * as out from '../utils/output.js';
 import type { BoardConfig, RoleConfig } from '../../core/types.js';
@@ -27,6 +27,9 @@ export interface StartOptions {
   dryRun?: boolean;
   verbose?: boolean;
 }
+
+// Re-export for consumers that need the extended interface
+export type { BoardTools } from '../../adapters/openclaw/factory.js';
 
 /**
  * Find the board config file — check common locations.
@@ -74,10 +77,16 @@ export async function startCommand(opts: StartOptions): Promise<void> {
   console.log(`  Roles:   ${Object.keys(config.roles).join(', ')}`);
   console.log('');
 
-  // ─── Initialize tools ─────────────────────────────────────────
-  const tools = new OpenClawCLITools({
+  // ─── Initialize tools via adapter factory ─────────────────────
+  // Adapter mode is read from board.yaml runtime.adapter (default: 'auto')
+  const mode = (config.runtime?.adapter ?? 'auto') as AdapterMode;
+  const gatewayUrl = process.env.OPENCLAW_GATEWAY_URL ?? 'http://localhost:18789';
+  const gatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN ?? '';
+
+  const tools = createTools(mode, {
+    url: gatewayUrl,
+    token: gatewayToken,
     verbose: opts.verbose,
-    log: opts.verbose ? console.log : undefined,
   });
 
   // ─── Verify agents exist ──────────────────────────────────────
@@ -132,7 +141,6 @@ export async function startCommand(opts: StartOptions): Promise<void> {
 
   for (const [role, roleConfig] of Object.entries(config.roles)) {
     if (roleConfig.session_type === 'cron') {
-      // Schedule cron instead of spawning
       await startCronAgent(role, roleConfig, config, tools, stateManager, loader);
       continue;
     }
@@ -140,7 +148,6 @@ export async function startCommand(opts: StartOptions): Promise<void> {
     if (roleConfig.session_type === 'persistent') {
       await startPersistentAgent(role, roleConfig, config, runtime, stateManager, loader);
     } else if (roleConfig.session_type === 'spawned') {
-      // On-demand agents are not spawned at startup
       console.log(`    ⏳ ${role} (${roleConfig.title}) — on-demand, will spawn when needed`);
     }
   }
@@ -178,13 +185,6 @@ export async function startCommand(opts: StartOptions): Promise<void> {
   }
 
   // ─── Keep alive ───────────────────────────────────────────────
-  // The boardroom stays running to maintain session state.
-  // In practice, the agents are persistent in OpenClaw and don't need
-  // a keepalive process. But we keep this alive for:
-  // - Clean shutdown via `agentboardroom stop`
-  // - State file locking (PID check)
-  // - Future: health monitoring loop
-
   const shutdown = async (signal: string) => {
     console.log(`\n  Received ${signal} — shutting down...`);
     await stopAllAgents(stateManager, tools, config);
@@ -198,7 +198,6 @@ export async function startCommand(opts: StartOptions): Promise<void> {
 
   // Heartbeat loop — periodic health check
   const heartbeatInterval = setInterval(() => {
-    // Update state timestamp to show we're alive
     const s = stateManager.load();
     s.updated_at = new Date().toISOString();
     stateManager.save(s);
@@ -221,7 +220,6 @@ async function startPersistentAgent(
   loader: ConfigLoader,
 ): Promise<void> {
   try {
-    // Resolve prompt template
     let prompt: string;
     try {
       prompt = loader.resolvePrompt(roleConfig.prompt, role, boardConfig);
@@ -249,23 +247,19 @@ async function startCronAgent(
   role: string,
   roleConfig: RoleConfig,
   boardConfig: BoardConfig,
-  tools: OpenClawCLITools,
+  tools: BoardTools,
   stateManager: StateManager,
   loader: ConfigLoader,
 ): Promise<void> {
   const cronName = `boardroom-${role}`;
   const interval = roleConfig.interval ?? '15m';
-
-  // Convert interval notation to cron expression
   const cronExpr = intervalToCron(interval);
 
-  // Build the audit message
   const message = `Perform your scheduled ${roleConfig.title} audit. ` +
     `Check: ${roleConfig.responsibilities.join(', ')}. ` +
     `Report any anomalies, budget concerns, or governance violations.`;
 
   try {
-    // Check if cron already exists
     const exists = await tools.cronExists(cronName);
     if (exists) {
       console.log(`    ♻️  ${role} (${roleConfig.title}) — cron "${cronName}" already exists`);
@@ -290,12 +284,11 @@ async function startCronAgent(
 
 async function stopAllAgents(
   stateManager: StateManager,
-  tools: OpenClawCLITools,
+  tools: BoardTools,
   config: BoardConfig,
 ): Promise<void> {
   const state = stateManager.load();
 
-  // Remove cron jobs
   for (const [name] of Object.entries(state.cronJobs)) {
     try {
       await tools.cronRemove(name);
@@ -305,7 +298,6 @@ async function stopAllAgents(
     }
   }
 
-  // Post shutdown message
   if (config.channels?.primary) {
     try {
       await tools.messagePost(
@@ -320,7 +312,7 @@ async function stopAllAgents(
 
 function intervalToCron(interval: string): string {
   const match = interval.match(/^(\d+)(m|h|d)$/);
-  if (!match) return '*/15 * * * *'; // Default: every 15 minutes
+  if (!match) return '*/15 * * * *';
 
   const [, num, unit] = match;
   const n = parseInt(num, 10);

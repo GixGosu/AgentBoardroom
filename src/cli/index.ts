@@ -18,6 +18,8 @@ import { decisionsCommand } from './commands/decisions.js';
 import { gatesCommand } from './commands/gates.js';
 import { projectsCommand } from './commands/projects.js';
 import { recordDecisionCommand } from './commands/record-decision.js';
+import { setupCommand } from './commands/setup.js';
+import { upCommand } from './commands/up.js';
 import * as out from './utils/output.js';
 
 const VERSION = '0.1.0';
@@ -56,7 +58,9 @@ ${out.bold('Usage:')}
   agentboardroom <command> [options]
 
 ${out.bold('Commands:')}
+  up                Shortcut: init + setup + start in one command
   init              Initialize a new board from a template
+  setup             Configure OpenClaw agents for this board
   start             Launch the Boardroom runtime
   stop              Stop the Boardroom runtime
   status            Display board/project status
@@ -72,7 +76,10 @@ ${out.bold('Global Options:')}
   --dir <path> Working directory (default: current)
 
 ${out.bold('Examples:')}
+  agentboardroom up --template software-dev --project my-app
   agentboardroom init --template software-dev --project my-app
+  agentboardroom setup --dry-run
+  agentboardroom setup --apply
   agentboardroom start
   agentboardroom start --config board.yaml --verbose
   agentboardroom stop
@@ -102,12 +109,33 @@ async function main(): Promise<void> {
 
   try {
     switch (command) {
+      case 'up':
+        await upCommand({
+          template: typeof flags.template === 'string' ? flags.template : undefined,
+          project: typeof flags.project === 'string' ? flags.project : undefined,
+          dir,
+          json,
+          dryRun: flags['dry-run'] === true,
+          verbose: flags.verbose === true,
+        });
+        break;
+
       case 'init':
         await initCommand({
           template: typeof flags.template === 'string' ? flags.template : undefined,
           project: typeof flags.project === 'string' ? flags.project : undefined,
           dir,
           json,
+        });
+        break;
+
+      case 'setup':
+        await setupCommand({
+          config: typeof flags.config === 'string' ? flags.config : undefined,
+          dir,
+          json,
+          dryRun: flags['dry-run'] === true,
+          apply: flags.apply === true,
         });
         break;
 

@@ -140,7 +140,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
     out.keyValue('State dir', 'state/');
     out.keyValue('Agents dir', 'agents/');
     console.log('');
-    out.info('Next: agentboardroom status');
+    out.info('Next steps:');
+    console.log('  1. agentboardroom setup --dry-run   # generate OpenClaw config');
+    console.log('  2. agentboardroom start              # launch the board');
   }
 }
 

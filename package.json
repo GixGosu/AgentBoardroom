@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "dev": "tsc --watch",
     "test": "node --import tsx --test tests/*.test.ts",
     "lint": "tsc --noEmit"

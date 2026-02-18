@@ -87,6 +87,8 @@ export interface StateConfig {
 
 export interface RuntimeConfig {
   platform: 'openclaw' | 'standalone';
+  /** Adapter selection mode — auto | openclaw-cli | openclaw-rest | standalone (default: auto) */
+  adapter?: 'auto' | 'openclaw-cli' | 'openclaw-rest' | 'standalone';
 }
 
 export type ModelTier = 'high' | 'medium' | 'low' | 'local_only';

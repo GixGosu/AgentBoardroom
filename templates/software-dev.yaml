@@ -133,3 +133,4 @@ state:
 # Runtime
 runtime:
   platform: openclaw
+  adapter: auto  # auto | openclaw-cli | openclaw-rest | standalone

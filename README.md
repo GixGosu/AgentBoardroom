@@ -171,22 +171,86 @@ See [`src/projects/`](src/projects/) for the implementation: `registry.ts`, `all
 
 ## Quick Start
 
+### Prerequisites
+- Node.js 20+
+- [OpenClaw](https://openclaw.ai) installed and running (`openclaw gateway start`)
+
+### Install
+
 ```bash
-# Install
-npm install agentboardroom
+npm install -g agentboardroom
+# or use npx:
+npx agentboardroom --help
+```
 
-# Initialize a new board
-agentboardroom init --template software-dev --project my-app
+### One Command to Start (Recommended)
 
-# Check status
-agentboardroom status
+```bash
+# Does everything: init + configure + launch
+OPENCLAW_GATEWAY_TOKEN=your-token agentboardroom up --template software-dev --project my-app
 
-# Query decisions and gates
-agentboardroom decisions --project my-app
-agentboardroom gates --project my-app
+# Or with defaults (uses folder name as project name):
+OPENCLAW_GATEWAY_TOKEN=your-token agentboardroom up
+
+# Preview without starting:
+agentboardroom up --dry-run
+```
+
+`agentboardroom up` handles the full startup sequence:
+1. Creates `board.yaml` from the template (skipped if already exists)
+2. Configures OpenClaw agents (uses `--apply` if token is set, dry-run otherwise)
+3. Launches the Boardroom runtime
+
+### Post a Brief
+
+Post a message to your board's primary channel (configured in board.yaml) to trigger the governance cycle.
+
+### Troubleshoot
+
+```bash
+agentboardroom status    # check board state
+agentboardroom setup --dry-run  # verify config
 ```
 
 For a complete walkthrough, see the **[Quick Start Guide](docs/QUICKSTART.md)**.
+
+---
+
+### Manual Setup (Step by Step)
+
+For users who want more control over each step:
+
+#### Initialize a Board
+
+```bash
+# Create a new board from the software-dev template
+agentboardroom init --template software-dev --project my-app
+cd my-app  # if you used --dir
+```
+
+#### Configure OpenClaw Agents
+
+```bash
+# See what OpenClaw config is needed:
+agentboardroom setup --dry-run
+
+# Or apply directly to a running gateway (requires OPENCLAW_GATEWAY_TOKEN):
+agentboardroom setup --apply
+```
+
+#### Start the Board
+
+```bash
+agentboardroom start
+```
+
+If OpenClaw CLI is in PATH, it connects automatically.
+If you're using a remote gateway, set:
+```bash
+export OPENCLAW_GATEWAY_URL=http://localhost:18789
+export OPENCLAW_GATEWAY_TOKEN=your-token
+agentboardroom start
+```
 
 ## Board Templates
 
