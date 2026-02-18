@@ -12,6 +12,7 @@ import { resolve, basename } from 'node:path';
 import { initCommand } from './init.js';
 import { setupCommand } from './setup.js';
 import { startCommand } from './start.js';
+import { OpenClawRestTools } from '../../adapters/openclaw/rest.js';
 import * as out from '../utils/output.js';
 
 export interface UpOptions {
@@ -29,12 +30,56 @@ export interface UpOptions {
   json?: boolean;
 }
 
+// ─── Gateway readiness helper ───────────────────────────────────────
+
+/**
+ * Wait for the gateway to come back up after restart.
+ * Polls the gateway health endpoint every second for up to maxWaitMs.
+ */
+async function waitForGateway(
+  maxWaitMs: number = 10_000,
+  pollIntervalMs: number = 1_000,
+  verbose: boolean = false,
+  log: (msg: string) => void = console.log
+): Promise<boolean> {
+  const gatewayUrl = process.env.OPENCLAW_GATEWAY_URL;
+  const token = process.env.OPENCLAW_GATEWAY_TOKEN;
+
+  const startTime = Date.now();
+  let attempts = 0;
+
+  while (Date.now() - startTime < maxWaitMs) {
+    attempts++;
+    const available = await OpenClawRestTools.isAvailable(gatewayUrl, token, 2_000);
+
+    if (available) {
+      if (verbose) {
+        log(`  Gateway ready after ${attempts} attempt(s) (${Date.now() - startTime}ms)`);
+      }
+      return true;
+    }
+
+    // Wait before next poll
+    await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+  }
+
+  return false;
+}
+
+/**
+ * Simple delay helper
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function upCommand(opts: UpOptions): Promise<void> {
   const dir = resolve(opts.dir ?? process.cwd());
   const template = opts.template ?? 'software-dev';
   const project = opts.project ?? (basename(process.cwd()) || 'my-board');
   const dryRun = opts.dryRun ?? false;
   const json = opts.json ?? false;
+  const verbose = opts.verbose ?? false;
 
   // ─── [1/3] Init ────────────────────────────────────────────────
   const boardYaml = resolve(dir, 'board.yaml');
@@ -64,6 +109,7 @@ export async function upCommand(opts: UpOptions): Promise<void> {
   }
 
   const hasToken = !!process.env.OPENCLAW_GATEWAY_TOKEN;
+  let setupApplied = false;
 
   if (!hasToken && !json) {
     out.warn('OPENCLAW_GATEWAY_TOKEN is not set.');
@@ -76,6 +122,7 @@ export async function upCommand(opts: UpOptions): Promise<void> {
   try {
     if (hasToken) {
       await setupCommand({ dir, json, apply: true });
+      setupApplied = true;
     } else {
       // Dry-run mode — generate openclaw-agents.json but don't apply
       await setupCommand({ dir, json, dryRun: true });
@@ -86,6 +133,32 @@ export async function upCommand(opts: UpOptions): Promise<void> {
       out.warn(`Setup encountered an issue: ${err.message ?? String(err)}`);
       console.log('  Continuing to start in standalone mode...');
       console.log('');
+    }
+  }
+
+  // ─── Wait for gateway after setup --apply ──────────────────────
+  if (setupApplied && !dryRun) {
+    if (!json) {
+      console.log('');
+      console.log('  Waiting for gateway to restart...');
+    }
+
+    // Initial delay to let gateway begin restart
+    await sleep(3_000);
+
+    // Poll gateway health for up to 10 seconds
+    const ready = await waitForGateway(10_000, 1_000, verbose, console.log);
+
+    if (!ready) {
+      if (!json) {
+        out.warn('Gateway may not be fully ready. Proceeding anyway...');
+        console.log('');
+      }
+    } else {
+      if (!json && verbose) {
+        console.log('  Gateway is ready.');
+        console.log('');
+      }
     }
   }
 
