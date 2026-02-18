@@ -124,6 +124,14 @@ channels:
   per_agent: true
   decision_log: "#decision-log"
   messaging_platform: mattermost
+  # Channel IDs for Mattermost bindings (required for agents to receive messages).
+  # Find IDs in Mattermost: channel name → View Info → copy ID.
+  # Run `agentboardroom setup --apply` after filling these in.
+  ids:
+    ceo: ""       # ID of your #board-ceo channel
+    cto: ""       # ID of your #board-cto channel
+    qa: ""        # ID of your #board-qa channel
+    auditor: ""   # ID of your #board-auditor channel
 
 # State management
 state:

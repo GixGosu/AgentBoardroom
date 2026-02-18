@@ -96,7 +96,7 @@ interface OpenClawConfig {
   agents: {
     list: OpenClawAgentConfig[];
   };
-  bindings: OpenClawBinding[];
+  bindings?: OpenClawBinding[];
 }
 
 // ─── Workspace file deployment ──────────────────────────────────────
@@ -255,12 +255,15 @@ function buildOpenClawConfig(
   const agentsList: OpenClawAgentConfig[] = [];
   const bindings: OpenClawBinding[] = [];
 
-  const primaryChannel = config.channels?.primary ?? '#theboard';
   const platform = config.channels?.messaging_platform ?? 'mattermost';
+  // Read channel IDs from board.yaml if provided — format: channels.ids.<role>: "actual-id"
+  const channelIds: Record<string, string> = (config.channels as any)?.ids ?? {};
+  const hasRealChannelIds = Object.keys(channelIds).length > 0;
 
   for (const [role, roleConfig] of Object.entries(config.roles)) {
     const agentId = `board-${role}`;
     const workspacePath = getWorkspacePath(role);
+    const channelId = channelIds[role];
 
     // Build agent config
     const agentConfig: OpenClawAgentConfig = {
@@ -271,28 +274,28 @@ function buildOpenClawConfig(
       subagents: { allowAgents: ['*'] },
     };
 
-    // Add heartbeat for cron agents (auditor)
-    if (roleConfig.session_type === 'cron') {
+    // Add heartbeat for cron agents (auditor) — only if real channel ID is available
+    if (roleConfig.session_type === 'cron' && channelId) {
       agentConfig.heartbeat = {
         every: roleConfig.interval ?? '15m',
         target: platform,
-        to: '<channel-id>', // Placeholder - user must configure
+        to: channelId,
       };
     }
 
     agentsList.push(agentConfig);
 
-    // Build binding for this agent
-    bindings.push({
-      agentId,
-      match: {
-        channel: platform,
-        peer: {
-          kind: 'channel',
-          id: '<channel-id>', // Placeholder - user must configure
+    // Only add bindings when real channel IDs are configured
+    // Never patch placeholder <channel-id> strings into OpenClaw — would break existing bindings
+    if (channelId) {
+      bindings.push({
+        agentId,
+        match: {
+          channel: platform,
+          peer: { kind: 'channel', id: channelId },
         },
-      },
-    });
+      });
+    }
 
     // Deploy workspace files if requested
     if (deployWorkspaces) {
@@ -300,10 +303,12 @@ function buildOpenClawConfig(
     }
   }
 
-  return {
-    agents: { list: agentsList },
-    bindings,
-  };
+  const result: OpenClawConfig = { agents: { list: agentsList } };
+  // Only include bindings in the patch if we have real channel IDs to bind
+  if (hasRealChannelIds && bindings.length > 0) {
+    result.bindings = bindings;
+  }
+  return result;
 }
 
 function getTitleDescriptor(role: string): string {
