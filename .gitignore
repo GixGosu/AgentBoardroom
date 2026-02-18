@@ -11,3 +11,4 @@ state/
 # Worker completion reports — internal artifacts
 COMPLETION-REPORT.md
 *-REPORT.md
+openclaw-agents.json
