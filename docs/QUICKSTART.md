@@ -7,22 +7,72 @@ Get AgentBoardroom running in 10 minutes.
 ## Prerequisites
 
 - **Node.js** ≥ 20.0.0
-- **OpenClaw** — Agent runtime ([installation guide](https://github.com/openclaw/openclaw))
-- **Mattermost**, **Discord**, or **Slack** — Communication layer for agent messaging
+- **OpenClaw** ≥ 2026.2 — Agent runtime ([installation guide](https://openclaw.ai))
+- **Mattermost** (or Discord/Slack) — Communication layer. Needs to be running with a bot user configured in OpenClaw before starting.
+
+### Getting your OpenClaw gateway token
+
+`agentboardroom up` needs your gateway token to configure agents automatically. Find it with:
+
+```bash
+openclaw gateway status   # token shown in output
+# or check: ~/.openclaw/openclaw.json → gateway.auth.token
+```
+
+Set it as an environment variable:
+```bash
+export OPENCLAW_GATEWAY_TOKEN=your-token-here
+```
+
+### Setting up Mattermost (if you haven't yet)
+
+```bash
+# Quick local Mattermost via Docker
+docker run -d --name mattermost -p 8065:8065 \
+  mattermost/mattermost-team-edition:latest
+```
+
+Then: create a bot account in Mattermost → System Console → Integrations → Bot Accounts. Add the bot token to OpenClaw via `openclaw setup`.
+
+Create the board channels in Mattermost before running `up` (the CLI won't create them for you):
+- `#my-app-board` — Board Chair ↔ CEO communication
+- `#my-app-ceo`, `#my-app-cto`, `#my-app-decisions` — Agent channels
+
+---
+
+## The One Command (Recommended)
+
+```bash
+npm install -g agentboardroom
+
+OPENCLAW_GATEWAY_TOKEN=your-token agentboardroom up --template software-dev --project my-app
+```
+
+`agentboardroom up` handles everything in sequence:
+1. Creates `board.yaml` from the template (skipped if already exists)
+2. Configures OpenClaw agents via the gateway REST API
+3. Launches the Boardroom runtime
+
+Then post a brief in `#my-app-board` and the governance cycle starts.
+
+---
+
+## Manual Setup (Step by Step)
+
+For users who want more control:
 
 ## Step 1: Install
 
 ```bash
-npm install agentboardroom
+npm install -g agentboardroom
 ```
 
 Or clone the repo:
 
 ```bash
 git clone https://github.com/GixGosu/AgentBoardroom.git
-cd agentboardroom
-npm install
-npm run build
+cd AgentBoardroom
+npm install && npm run build
 ```
 
 ## Step 2: Initialize a Board
@@ -62,7 +112,7 @@ channels:
   messaging_platform: mattermost # or discord, slack
 ```
 
-Create these channels in your messaging platform before starting the board.
+Create these channels in Mattermost (or your platform) before starting. The CLI does not create them automatically.
 
 ## Step 4: Configure OpenClaw
 

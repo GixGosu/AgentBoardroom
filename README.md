@@ -172,8 +172,9 @@ See [`src/projects/`](src/projects/) for the implementation: `registry.ts`, `all
 ## Quick Start
 
 ### Prerequisites
-- Node.js 20+
-- [OpenClaw](https://openclaw.ai) installed and running (`openclaw gateway start`)
+- **Node.js 20+**
+- **[OpenClaw](https://openclaw.ai)** installed and running (`openclaw gateway start`)
+- **Mattermost** (or Discord/Slack) — running with a bot user connected to OpenClaw. Channels for your project must exist before starting the board.
 
 ### Install
 
@@ -194,6 +195,12 @@ OPENCLAW_GATEWAY_TOKEN=your-token agentboardroom up
 
 # Preview without starting:
 agentboardroom up --dry-run
+```
+
+**Where to get your `OPENCLAW_GATEWAY_TOKEN`:**
+```bash
+openclaw gateway status   # token shown in output
+# or: cat ~/.openclaw/openclaw.json | grep '"token"'
 ```
 
 `agentboardroom up` handles the full startup sequence:
