@@ -1,8 +1,8 @@
 # AgentBoardroom — Decision Intelligence Platform
 ## Packaging & Generalization Plan
 
-**Origin:** `/mnt/e/Dev/TheBoard/` (prototype, OpenClaw-specific)
-**Target:** `/mnt/e/Dev/DecisionEngines/AgentBoardroom/` (generalizable product)
+**Origin:** `TheBoard/` (prototype, OpenClaw-specific)
+**Target:** `AgentBoardroom/` (generalizable product)
 **Author:** Cyberarctica Labs
 
 ---
@@ -29,7 +29,7 @@ A multi-agent decision intelligence platform that replaces hub-and-spoke task ro
 
 ### 1.1 Extract from Prototype
 
-Port from `/mnt/e/Dev/TheBoard/` — the master prompt, agent definitions, and architecture are the IP. Strip hardcoded references to specific Mattermost channel IDs, OpenClaw session keys, model names.
+Port from the prototype (`TheBoard/`) — the master prompt, agent definitions, and architecture are the IP. Strip hardcoded references to specific Mattermost channel IDs, OpenClaw session keys, model names.
 
 ### 1.2 Define the Core Abstraction
 
